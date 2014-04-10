@@ -1,0 +1,250 @@
+<html>
+	<head>
+		<title>Tourettes 3D project test</title>
+		<style>	body{height:100%; overflow-y:hidden;background:red; margin:0px;padding:0px;}
+			canvas { width: 100%; height: 100% }</style>
+	</head>
+	<body>
+		<script src="https://rawgithub.com/mrdoob/three.js/master/build/three.js"></script>
+		<script  type="text/javascript" src="keyboardstate.js"></script>
+		<script type="text/javascript" src="physics/physi.js"></script>
+		<script type="text/javascript" src="js/stats.js"></script>
+		<script type="text/javascript" src="js/MTLLoader.js"></script>
+		<script type="text/javascript" src="js/OBJMTLLoader.js"></script>
+		
+	
+		<script  type="text/javascript">
+
+			'use strict';
+			//Initiate Physijs
+    		Physijs.scripts.worker = 'physics/physijs_worker.js';
+    		Physijs.scripts.ammo = 'ammo.js';
+
+    
+			//Global Variable
+			var scene = new Physijs.Scene;
+			var clock = new THREE.Clock();
+			var keyboard = new KeyboardState();
+
+			// CAMERA
+			var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
+			var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+			var camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+			scene.add(camera);
+			camera.position.set(0,5,20);
+			camera.lookAt(scene.position);
+
+			//Renderer..
+			var renderer = new THREE.WebGLRenderer({ antialias: true });
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			document.body.appendChild(renderer.domElement);
+
+			//Cube around the game  (Background)
+			var theWorld = new THREE.CubeGeometry( 200, 200,200 );
+			var materialworld = new THREE.MeshLambertMaterial( {map:THREE.ImageUtils.loadTexture('texture/sky.jpg'),side:THREE.DoubleSide});
+			var background = new THREE.Mesh(theWorld,materialworld);
+			scene.add(background);
+
+			var heightInvisibleBox = 1.4;
+			var geometry = new THREE.CubeGeometry(2,heightInvisibleBox,5);
+			var geometrySphere = new THREE.SphereGeometry(1, 32)
+			// material
+     		 var materialCube = new THREE.MeshLambertMaterial({
+       		 map: THREE.ImageUtils.loadTexture('texture/crate.jpg')
+      		});
+     		 //Physics for the cube
+			var cube = new Physijs.BoxMesh(geometry, materialCube,0.5);
+			//Starting position
+			cube.position.y = (4);
+			cube.position.x=2;
+			cube.rotation.x=0.5;
+			//CHANGE TO FALSE!
+			cube.visible = true;
+			
+
+
+			//Car
+			var loader = new THREE.OBJMTLLoader();
+			loader.load( 'objects/car.obj', 'objects/car.mtl', function ( object ) {
+					//Object is the car, adding car to the cube for physics
+					object.scale.set(0.03,0.03,0.03);
+					object.rotation.y = Math.PI;
+					object.position.y = -heightInvisibleBox/2;
+					cube.add(object);
+
+				} );
+			scene.add(cube);
+
+			
+		
+
+			var sphere = new Physijs.SphereMesh(geometrySphere, materialCube);
+			sphere.position.y = (1);
+			sphere.rotation.x=0.5;
+			scene.add(sphere);
+			
+			// load a texture, set wrap mode to repeat
+			var texture = THREE.ImageUtils.loadTexture( "texture/highway.jpg" );
+			texture.wrapS = THREE.RepeatWrapping;
+			texture.wrapT = THREE.RepeatWrapping;
+			texture.repeat.set( 1, 20 );
+
+			//Raceplane
+			var geometry = new THREE.PlaneGeometry( 15, 2000);
+			var material = new THREE.MeshBasicMaterial( {map:texture,side:THREE.DoubleSide} );
+			var plane = new Physijs.BoxMesh( geometry, material );
+			plane.position.y = -0.0;
+			plane.rotation.x = Math.PI / 2;
+
+			scene.add( plane );
+			
+			 // add subtle ambient lighting
+		      var ambientLight = new THREE.AmbientLight(0xbbbbbb);
+		      scene.add(ambientLight);
+		      //Directional light
+		      var directionalLight = new THREE.DirectionalLight( 0xffeedd );
+		      directionalLight.position.set( 0, 10, 10 ).normalize();
+		      scene.add( directionalLight );
+		      //Light from camera angle
+		      function setCameraLight(){
+				
+				var x  = camera.position.x;
+				var	y = camera.position.y;
+				var	z = camera.position.z;
+				directionalLight.position.set( x, y, z ).normalize();
+				
+				}
+		     
+      
+
+			
+				
+			var render = function () {
+				requestAnimationFrame(render);
+				//Camera at cube
+				camera.lookAt(cube.position);
+				renderer.render(scene, camera);
+				update();
+				//rotate with Z, X  Disable follow cube to use
+				//checkRotation();
+				//Make camera behind cube
+				followCube();
+				//For physics
+				scene.simulate();
+
+				//setCameraLight();
+
+			};
+
+			function update()
+			{
+				keyboard.update();
+
+				var moveDistance = 50 * clock.getDelta();
+				//Move in direction
+				var jumpvec = new THREE.Vector3( 0, 1, 0 );
+				var rightvec = new THREE.Vector3( 0.1, 0, 0 );
+				var leftvec = new THREE.Vector3( -0.1, 0, 0 );
+				var toscreenvec = new THREE.Vector3( 0, 0, 0.1 );
+				var awayscreenvec = new THREE.Vector3( 0, 0, -0.1 );
+				//cube controll
+				if ( keyboard.pressed("left") ) 
+					cube.applyCentralImpulse(leftvec);
+					
+				if ( keyboard.pressed("right") ) 
+					cube.applyCentralImpulse(rightvec);
+
+				if ( keyboard.pressed("down") ) 
+					cube.applyCentralImpulse(toscreenvec);
+					
+				if ( keyboard.pressed("up") ) {
+					cube.applyCentralImpulse(awayscreenvec);
+
+				}
+
+				if ( keyboard.pressed("space") ) {
+					cube.applyCentralImpulse(jumpvec);
+				}
+				//the sphere control
+				if ( keyboard.pressed("A") ) 
+					sphere.applyCentralImpulse(leftvec);
+					
+				if ( keyboard.pressed("D") ) 
+					sphere.applyCentralImpulse(rightvec);
+
+				if ( keyboard.pressed("S") ) 
+					sphere.applyCentralImpulse(toscreenvec);
+					
+				if ( keyboard.pressed("W") ) 
+					sphere.applyCentralImpulse(awayscreenvec);
+
+			}
+			
+			function checkRotation(){
+				var rotSpeed = 0.02;
+
+		    var x = camera.position.x,
+		        y = camera.position.y,
+		        z = camera.position.z;
+
+		    if (keyboard.pressed("Z")){ 
+		        camera.position.x = x * Math.cos(rotSpeed) + z * Math.sin(rotSpeed);
+		        camera.position.z = z * Math.cos(rotSpeed) - x * Math.sin(rotSpeed);
+		    } else if (keyboard.pressed("X")){
+		        camera.position.x = x * Math.cos(rotSpeed) - z * Math.sin(rotSpeed);
+		        camera.position.z = z * Math.cos(rotSpeed) + x * Math.sin(rotSpeed);
+		    }if (keyboard.pressed("G")){ 
+		        camera.position.y = y * Math.cos(rotSpeed) + z * Math.sin(rotSpeed);
+		        camera.position.z = z * Math.cos(rotSpeed) - y * Math.sin(rotSpeed);
+		    } else if (keyboard.pressed("B")){
+		        camera.position.y = x * Math.cos(rotSpeed) - y * Math.sin(rotSpeed);
+		        camera.position.z = z * Math.cos(rotSpeed) + y * Math.sin(rotSpeed);
+		    }
+		    
+		    camera.lookAt(scene.position);
+		    
+			} 
+			//Function camera
+			function followCube(){
+				var z = cube.position.z + 10;
+				var y = cube.position.y +5;
+				var x = cube.position.x;
+				camera.position.z = z;
+				camera.position.x = x;
+				camera.position.y = y;
+				camera.lookAt(cube.position);
+			}
+				
+		
+			
+
+			//SHOW STATS
+			var stats = new Stats();
+			stats.setMode(1); // 0: fps, 1: ms
+
+			// Align top-left
+			stats.domElement.style.position = 'absolute';
+			stats.domElement.style.left = '0px';
+			stats.domElement.style.top = '0px';
+
+			document.body.appendChild( stats.domElement );
+
+			setInterval( function () {
+
+			    stats.begin();
+
+			   	
+
+			    stats.end();
+
+			}, 1000 / 60 );
+
+
+
+			//Start render
+			checkRotation();
+			render();
+			
+		</script>
+	</body>
+</html>
