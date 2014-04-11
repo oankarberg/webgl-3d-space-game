@@ -30,7 +30,7 @@
 			var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
 			var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
 			var camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
-			scene.add(camera);
+			
 			camera.position.set(0,5,20);
 			camera.lookAt(scene.position);
 
@@ -40,7 +40,7 @@
 			document.body.appendChild(renderer.domElement);
 
 			//Cube around the game  (Background)
-			var theWorld = new THREE.CubeGeometry( 200, 200,200 );
+			var theWorld = new THREE.CubeGeometry( 50, 50,200 );
 			var materialworld = new THREE.MeshLambertMaterial( {map:THREE.ImageUtils.loadTexture('texture/sky.jpg'),side:THREE.DoubleSide});
 			var background = new THREE.Mesh(theWorld,materialworld);
 			scene.add(background);
@@ -53,16 +53,16 @@
        		 map: THREE.ImageUtils.loadTexture('texture/crate.jpg')
       		});
      		 //Physics for the cube
-			var cube = new Physijs.BoxMesh(geometry, materialCube,0.5);
+			var cube = new Physijs.BoxMesh(geometry, materialCube,0.8);
 			//Starting position
 			cube.position.y = (4);
 			cube.position.x=2;
 			cube.rotation.x=0.5;
 			//CHANGE TO FALSE!
-			cube.visible = true;
+			cube.visible = false;
 			
 
-
+			var carobject;
 			//Car
 			var loader = new THREE.OBJMTLLoader();
 			loader.load( 'objects/car.obj', 'objects/car.mtl', function ( object ) {
@@ -70,11 +70,14 @@
 					object.scale.set(0.03,0.03,0.03);
 					object.rotation.y = Math.PI;
 					object.position.y = -heightInvisibleBox/2;
+
 					cube.add(object);
 
 				} );
+			cube.add(camera);
 			scene.add(cube);
 
+			
 			
 		
 
@@ -87,33 +90,41 @@
 			var texture = THREE.ImageUtils.loadTexture( "texture/highway.jpg" );
 			texture.wrapS = THREE.RepeatWrapping;
 			texture.wrapT = THREE.RepeatWrapping;
-			texture.repeat.set( 1, 20 );
+			texture.repeat.set( 1, 40 );
 
 			//Raceplane
-			var geometry = new THREE.PlaneGeometry( 15, 2000);
+			var geometry = new THREE.PlaneGeometry( 5, 2000);
 			var material = new THREE.MeshBasicMaterial( {map:texture,side:THREE.DoubleSide} );
 			var plane = new Physijs.BoxMesh( geometry, material );
 			plane.position.y = -0.0;
 			plane.rotation.x = Math.PI / 2;
-
 			scene.add( plane );
+
+			var geometryPlane2 = new THREE.PlaneGeometry( 5,100);
+			var materialPlane2 = new THREE.MeshBasicMaterial( {map:texture,side:THREE.DoubleSide} );
+			var plane2 = new Physijs.BoxMesh( geometryPlane2, materialPlane2 );
+			plane2.position.z = -100.0;
+			plane2.position.x = -10.0;
+			plane2.rotation.x = Math.PI / 2;
+			scene.add( plane2 );
 			
-			 // add subtle ambient lighting
-		      var ambientLight = new THREE.AmbientLight(0xbbbbbb);
-		      scene.add(ambientLight);
-		      //Directional light
-		      var directionalLight = new THREE.DirectionalLight( 0xffeedd );
-		      directionalLight.position.set( 0, 10, 10 ).normalize();
-		      scene.add( directionalLight );
-		      //Light from camera angle
-		      function setCameraLight(){
+			
+			// add subtle ambient lighting
+		    var ambientLight = new THREE.AmbientLight(0xbbbbbb);
+		    scene.add(ambientLight);
+		    //Directional light
+		    var directionalLight = new THREE.DirectionalLight( 0xffeedd );
+		    directionalLight.position.set( 0, 10, 10 ).normalize();
+		    scene.add( directionalLight );
+		    //Light from camera angle
+		    function setCameraLight(){
 				
 				var x  = camera.position.x;
 				var	y = camera.position.y;
 				var	z = camera.position.z;
 				directionalLight.position.set( x, y, z ).normalize();
 				
-				}
+			}
 		     
       
 
@@ -122,15 +133,21 @@
 			var render = function () {
 				requestAnimationFrame(render);
 				//Camera at cube
-				camera.lookAt(cube.position);
+				cube.lookAt(cube.position);
+				
 				renderer.render(scene, camera);
 				update();
 				//rotate with Z, X  Disable follow cube to use
-				//checkRotation();
+				checkRotation();
+				stats.update(renderer);
 				//Make camera behind cube
-				followCube();
+				//followCube();
 				//For physics
 				scene.simulate();
+
+				//worldFollowCube();
+
+			
 
 				//setCameraLight();
 
@@ -146,7 +163,7 @@
 				var rightvec = new THREE.Vector3( 0.1, 0, 0 );
 				var leftvec = new THREE.Vector3( -0.1, 0, 0 );
 				var toscreenvec = new THREE.Vector3( 0, 0, 0.1 );
-				var awayscreenvec = new THREE.Vector3( 0, 0, -0.1 );
+				var awayscreenvec = new THREE.Vector3( 0, 0, -0.1);
 				//cube controll
 				if ( keyboard.pressed("left") ) 
 					cube.applyCentralImpulse(leftvec);
@@ -159,9 +176,7 @@
 					
 				if ( keyboard.pressed("up") ) {
 					cube.applyCentralImpulse(awayscreenvec);
-
 				}
-
 				if ( keyboard.pressed("space") ) {
 					cube.applyCentralImpulse(jumpvec);
 				}
@@ -206,15 +221,20 @@
 			} 
 			//Function camera
 			function followCube(){
-				var z = cube.position.z + 10;
-				var y = cube.position.y +5;
-				var x = cube.position.x;
+				var z = carobject.position.z + 10;
+				var y = carobject.position.y +5;
+				var x = carobject.position.x;
 				camera.position.z = z;
 				camera.position.x = x;
 				camera.position.y = y;
-				camera.lookAt(cube.position);
+				//camera.lookAt(cube.position);
 			}
-				
+			
+			function worldFollowCube(){
+				background.position.z = cube.position.z;
+				background.position.y = cube.position.y ;
+				background.position.x= cube.position.x;
+			}
 		
 			
 
