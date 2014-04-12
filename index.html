@@ -43,7 +43,7 @@
 			var theWorld = new THREE.CubeGeometry( 50, 50,200 );
 			var materialworld = new THREE.MeshLambertMaterial( {map:THREE.ImageUtils.loadTexture('texture/sky.jpg'),side:THREE.DoubleSide});
 			var background = new THREE.Mesh(theWorld,materialworld);
-			scene.add(background);
+			
 
 			var heightInvisibleBox = 1.4;
 			var geometry = new THREE.CubeGeometry(2,heightInvisibleBox,5);
@@ -75,6 +75,7 @@
 
 				} );
 			cube.add(camera);
+			cube.add(background);
 			scene.add(cube);
 
 			
@@ -105,6 +106,14 @@
 			var plane2 = new Physijs.BoxMesh( geometryPlane2, materialPlane2 );
 			plane2.position.z = -100.0;
 			plane2.position.x = -10.0;
+			plane2.rotation.x = Math.PI / 2;
+			scene.add( plane2 );
+
+			var geometryPlane2 = new THREE.PlaneGeometry( 5,100);
+			var materialPlane2 = new THREE.MeshBasicMaterial( {map:texture,side:THREE.DoubleSide} );
+			var plane2 = new Physijs.BoxMesh( geometryPlane2, materialPlane2 );
+			plane2.position.z = -100.0;
+			plane2.position.x = 10.0;
 			plane2.rotation.x = Math.PI / 2;
 			scene.add( plane2 );
 			
