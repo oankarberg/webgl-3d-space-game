@@ -138,6 +138,7 @@ function init()
 											  wingDepth);
 											  
 	var shipMat 	= new THREE.MeshLambertMaterial( { color: 0x006464 } );
+
 	ship 			= new THREE.Mesh( shipGeom, shipMat );
 
 	var rightWing = new THREE.Mesh( wingGeom, shipMat ),
@@ -223,8 +224,8 @@ function init()
 	ship.add( lightRear );	
 	ship.add( engine.particleMesh );
 	
-	group.add( ship );
 	group.add( skyBox );
+	group.add( ship );
 	group.add( lightMain );
 
 	scene.add( group );
@@ -265,8 +266,11 @@ function resetCamera()
 
 function update()
 {	
+
+	//ger sekunder sen senaste anropet till denna funk
 	var dt = clock.getDelta();
-	
+	console.log(dt);
+
 	engine.update( dt * 0.5 );	//uppdatera particles
 
 	if ( keyboard.pressed("W") ) 
