@@ -18,6 +18,9 @@
 <script src="js/ParticleEngine.js"></script>
 <script src="js/ParticleEngineExamples.js"></script>
 
+<script type="text/javascript" src="js/MTLLoader.js"></script>
+<script type="text/javascript" src="js/OBJMTLLoader.js"></script>
+
 <!-- GUI for experimenting with values -->		
 <!--script type="text/javascript" src="js/DAT.GUI.min.js"></script-->
 
@@ -32,7 +35,7 @@
 <script>
 
 	// standard global variables
-	var cube2, engine, container, scene, camera, renderer, group, ship, cube, sphere, dt; //controls;
+	var cube2, loader, engine, container, scene, camera, renderer, group, ship, cube, sphere, dt; //controls;
 	var keyboard = new THREEx.KeyboardState();
 	var clock = new THREE.Clock();
 
@@ -142,8 +145,14 @@
 
 		//kuben som styr fysiken
 		cube = new Physijs.BoxMesh(new THREE.CubeGeometry(100,100,50), floorMaterial,0.8);
+
+		cube2 = new Physijs.BoxMesh(new THREE.CubeGeometry(100,100,50), floorMaterial,0.8);
+		cube2.position.y = 40;
+		cube2.position.z = -300;
 		//cube.visible = false;
 		cube.position.y = 40;
+
+		
 
 		//skeppets geometri
 		var shipLength 	= 200, shipHeight = 60,	shipWidth = 60,
@@ -228,15 +237,32 @@
 	/*	lightRear.intensity = 10.0;
 		lightRear.distance = 100;
 	*/
-
 		//skapa partikelsystem
 		engine = new ParticleEngine();
 		engine.setValues( Examples.carlbaum );
 		engine.initialize(); // jag tog bort scene.add från ParticleEngine.js för att kunna använda ship.add istället
 		engine.positionBase.z = shipLength/2;
+
+		//laddar in modell
+		loader = new THREE.OBJMTLLoader();
+		loader.load( 'objects/Wraith_Raider_Starship.obj', 'objects/Wraith_Raider_Starship.mtl', function ( object ) {
+			//Object is the car, adding car to the cube for physics
+			object.scale.set(0.6,0.6,0.6);
+			object.rotation.y = Math.PI;
+			object.position.y = -100/2;
+
+			ship.add(object);
+
+		} );
+
+		//visar bara skeppet
+		ship.visible = false;
+		rightWing.visible = false;
+		leftWing.visible = false;
+		cube.visible = false;
 		
 		//lägg till objekt i scenen/gruppen etc
-		camera.lookAt(cube);
+		camera.lookAt(scene.position);
 		cube.add(camera);
 		ship.add( leftWing );
 		ship.add( rightWing );
@@ -244,13 +270,16 @@
 		ship.add( lightFront );
 		ship.add( lightRear );	
 		ship.add( engine.particleMesh );
-		
+
+		//scene.add(cube2);
 		group.add( lightMain );
 		cube.add( skyBox );
 		//cube.add(group);
 		cube.add(group);
 		cube.add(ship);
 		scene.add(cube);
+
+
 
 	}
 
