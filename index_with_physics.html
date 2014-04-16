@@ -32,7 +32,7 @@
 <script>
 
 	// standard global variables
-	var container, scene, camera, renderer, group, ship, cube, sphere, dt; //controls;
+	var cube2, engine, container, scene, camera, renderer, group, ship, cube, sphere, dt; //controls;
 	var keyboard = new THREEx.KeyboardState();
 	var clock = new THREE.Clock();
 
@@ -46,7 +46,7 @@
 
 	var maxRotX, maxTransX; //skeppets maximala rotation resp. förflyttning
 	var jumpAmp; //hur högt skeppet kan hoppa (jumpAmplitude)
-	//var hoverDist; //hur högt över banan som skeppet flyger
+	var hoverDist; //hur högt över banan som skeppet flyger
 	var shipSpeed;
 
 	var PI = Math.PI;
@@ -58,6 +58,7 @@
 	function init() 
 	{
 
+		'use strict';
 		//Initiate Physijs
 		Physijs.scripts.worker = 'physics/physijs_worker.js';
 		Physijs.scripts.ammo = 'ammo.js';
@@ -229,7 +230,7 @@
 	*/
 
 		//skapa partikelsystem
-		this.engine = new ParticleEngine();
+		engine = new ParticleEngine();
 		engine.setValues( Examples.carlbaum );
 		engine.initialize(); // jag tog bort scene.add från ParticleEngine.js för att kunna använda ship.add istället
 		engine.positionBase.z = shipLength/2;
@@ -259,6 +260,7 @@
 		render();		
 		update();
 
+		//cube.lookAt(cube);
 		checkRotation();
 
 		scene.simulate();
@@ -346,10 +348,17 @@
 		//ger sekunder sen senaste 
 		dt = clock.getDelta();
 
-		engine.update( dt * 0.01 );	//uppdatera particles
+		engine.update( dt * 0.8 );	//uppdatera particles
 
 		if ( keyboard.pressed("W") ) {
 			cube.applyCentralImpulse(awayscreenvec);
+			engine.positionStyle = Type.SPHERE;
+		}
+
+		//liten eld då man inte gasar
+		else
+		{
+			engine.positionStyle = Type.CUBE;
 		}
 
 		if ( keyboard.pressed("S") ) 
