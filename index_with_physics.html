@@ -106,7 +106,7 @@
 		floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
 		floorTexture.repeat.set( 1.5, 10 );
 		var floorMaterial = new THREE.MeshLambertMaterial( { color: 0x444444, map: floorTexture, side: THREE.DoubleSide } );
-		var floorGeometry = new THREE.PlaneGeometry(300, 10000, 10, 10);
+		var floorGeometry = new THREE.PlaneGeometry(300, 500, 10, 10);
 		var floor = new Physijs.BoxMesh(floorGeometry, floorMaterial);
 		floor.position.y = -10.5;
 		floor.position.z = -4750;
@@ -457,6 +457,12 @@
 		renderer.render( scene, camera );
 	}
 
+	
+	
+	//road generating function
+	function generateRoad
+	
+	
 </script>
 
 
