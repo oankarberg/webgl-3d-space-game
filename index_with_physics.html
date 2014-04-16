@@ -48,6 +48,9 @@
 	var jumpAmp; //hur högt skeppet kan hoppa (jumpAmplitude)
 	var hoverDist; //hur högt över banan som skeppet flyger
 	var shipSpeed;
+	
+	var shipDistZ = 0,
+		shipDistStart = 0;
 
 	var PI = Math.PI;
 
@@ -106,10 +109,10 @@
 		floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
 		floorTexture.repeat.set( 1.5, 10 );
 		var floorMaterial = new THREE.MeshLambertMaterial( { color: 0x444444, map: floorTexture, side: THREE.DoubleSide } );
-		var floorGeometry = new THREE.PlaneGeometry(300, 500, 10, 10);
+		var floorGeometry = new THREE.PlaneGeometry(300, 2000, 10, 10);
 		var floor = new Physijs.BoxMesh(floorGeometry, floorMaterial);
 		floor.position.y = -10.5;
-		floor.position.z = -4750;
+		floor.position.z = -950;
 		floor.rotation.x = PI / 2;
 		scene.add(floor);
 		
@@ -427,6 +430,12 @@
 			jump(); //starts jump timer
 		}
 		
+		//generera ett vägsegment 
+		shipDistZ = cube.position.z;
+		if ( shipDistZ-shipDistStart <= -500 ) {
+			scene.add( generateGroundSegment() );
+			shipDistStart = cube.position.z;
+		}
 	}
 
 	//stabiliserar skeppet.. 
@@ -455,13 +464,43 @@
 	function render() 
 	{
 		renderer.render( scene, camera );
+	}	
+	
+//ground generating function
+	//variables
+	var laneWidth = 300,		//bredd på varje vägfil
+		minSegmentLength = 200; //minsta längden på ett vägsegment
+		
+	var	groundPosY = -10.5,
+		groundPosZ = 1950;		//uppdateras efter varje nytt segment, defaultvärdet ska vara lika med startplanets sista z-koordinat
+		
+	var groundTexture = new THREE.ImageUtils.loadTexture( 'images/checkerboard.jpg' );
+		groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping; 
+		groundTexture.repeat.set( 0.50, 2.0 );
+	var groundMaterial = new THREE.MeshLambertMaterial( { color: 0x444444, map: groundTexture, side: THREE.DoubleSide } );
+	var groundGeometry;
+	
+	function generateGroundSegment() //generates a ground segment
+	{
+		console.log("generera mark");
+		var segLength = Math.floor((Math.random()*1000)+minSegmentLength);			//den faktiska längden på det segment som genereras
+		groundGeometry = new THREE.PlaneGeometry(laneWidth, segLength, 10, 10);
+		var ground = new Physijs.BoxMesh(groundGeometry, groundMaterial);	
+		ground.position.x = laneWidth * Math.floor((Math.random()*3)-1);			//randomgrejen genererar -1, 0 eller 1
+		ground.position.z = -groundPosZ - segLength/2;
+		ground.rotation.x = PI / 2;
+		groundPosZ += segLength;			// öka på för att nästa segment ska hamna på korrekt plats
+		return ground;
+	}	
+	///MÅSTE!!! MÅSTE lägga till removeGroundSegment() ( tror jag.. )
+	function removeGroundSegment() 
+	{
+		/* 
+			typ hitta alla groundSegments med z-värden större än (skeppets z-värde + offset(typ 400))
+			och deleta dem.. annars kanske dem tar upp en massa onödigt minne
+		*/
 	}
 
-	
-	
-	//road generating function
-	function generateRoad
-	
 	
 </script>
 
