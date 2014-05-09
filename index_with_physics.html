@@ -14,8 +14,6 @@
 <script src="js/THREEx.FullScreen.js"></script>
 <script src="js/THREEx.WindowResize.js"></script>
 <script type="text/javascript" src="physics/physi.js"></script>
-<script src="js/helveticafont.js"></script>
-
 
 <script src="js/ParticleEngine.js"></script>
 <script src="js/ParticleEngineExamples.js"></script>
@@ -25,8 +23,6 @@
 
 <!-- GUI for experimenting with values -->		
 <!--script type="text/javascript" src="js/DAT.GUI.min.js"></script-->
-
-
 
 <!-- ------------------------------------------------------------ -->
 
@@ -139,11 +135,7 @@
 	    var directionalLight = new THREE.DirectionalLight( 0xffeedd );
 	    directionalLight.position.set( 0, 10, 10 ).normalize();
 	    scene.add( directionalLight );
-
 		
-
-		
-
 
 			////////////
 			// CUSTOM //
@@ -160,9 +152,6 @@
 		cube2.position.z = -300;
 		//cube.visible = false;
 		cube.position.y = 40;
-
-		
-
 		//skeppets geometri
 		var shipLength 	= 200, shipHeight = 60,	shipWidth = 60,
 			wingWidth	= 150, wingHeight = 20, wingDepth = 100;
@@ -260,16 +249,18 @@
 			object.rotation.y = Math.PI;
 			object.position.y = -100/2;
 
-			ship.add(object);
+			//ship.add(object);
 
 		} );
 
-		//visar bara skeppet
+		//för modell
+		/*
 		ship.visible = false;
 		rightWing.visible = false;
 		leftWing.visible = false;
 		cube.visible = false;
-		
+		*/
+
 		//lägg till objekt i scenen/gruppen etc
 		camera.lookAt(scene.position);
 		cube.add(camera);
@@ -303,32 +294,6 @@
 
 		scene.simulate();
 	}
-	/*
-	function restartEngine(parameters)
-	{
-		resetCamera();
-		
-		engine.destroy();
-		engine = new ParticleEngine();
-		engine.setValues( parameters );
-		engine.initialize();
-	}
-
-	function resetCamera()
-	{
-		// CAMERA
-		var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
-		var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
-		camera2 = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
-		//camera.up = new THREE.Vector3( 0, 0, 1 );
-		camera2.position.set(0,200,400);
-		camera2.lookAt(scene.position);	
-		scene.add(camera2);
-		
-		controls = new THREE.OrbitControls( camera2, renderer.domElement );
-		THREEx.WindowResize(renderer, camera);
-	}
-	*/
 
 	function checkRotation(){
 		
@@ -359,38 +324,12 @@
 
 	function update()
 	{	
-		clock.start();
+
 		var jumpvec = new THREE.Vector3( 0, 20, 0 );
 		var rightvec = new THREE.Vector3( 20, 0, 0 );
 		var leftvec = new THREE.Vector3( -20, 0, 0 );
 		var toscreenvec = new THREE.Vector3( 0, 0, 20 );
 		var awayscreenvec = new THREE.Vector3( 0, 0, -20);
-
-		var tid1 = clock.getElapsedTime().toPrecision(1);
-	    
-	    var materialFront = new THREE.MeshBasicMaterial( { color: 0x333129 } );
-		var materialSide = new THREE.MeshBasicMaterial( { color: 0x000000 } );
-		var materialArray = [ materialFront, materialSide ];
-		var textMaterial = new THREE.MeshFaceMaterial(materialArray);
-		var textGeom = new THREE.TextGeometry(tid1, 
-		{
-			size: 30, height: 5, curveSegments: 3,
-			font: "helvetiker", weight: "bold", style: "normal",
-			bevelThickness: 1, bevelSize: 1, bevelEnabled: false,
-			material: 0, extrudeMaterial: 1
-
-		});
-
-		var textMesh = new THREE.Mesh(textGeom, textMaterial );
-		textMesh.update;
-		textMesh.position.set( -400, 200, -2 );
-		//textMesh.rotation.x = -Math.PI / 4;
-		//textMesh.scale.set(0.2, 0.2, 0.2);
-		scene.add(textMesh);
-		//textGeom.computeBoundingBox();
-		//var textWidth = textGeom.boundingBox.max.x - textGeom.boundingBox.min.x;
-
-		
 
 		//the sphere control
 	/*
@@ -487,7 +426,7 @@
 			}
 		}
 		else if ( keyboard.pressed("space") ) { //if jump is not in progress and user hits space
-			console.log("bajs");
+			//console.log("bajs");
 			jump(); //starts jump timer
 		}
 		
