@@ -47,6 +47,7 @@
 
 	var maxRotX, maxTransX; //skeppets maximala rotation resp. förflyttning
 	var jumpAmp; //hur högt skeppet kan hoppa (jumpAmplitude)
+	var jumpOrdive = 1; //Dyka eller hoppa.
 	var hoverDist; //hur högt över banan som skeppet flyger
 	var shipSpeed;
 	
@@ -421,13 +422,19 @@
 			}
 			else { //if the jump is still in progress
 				jumpTime = jumpClock.getElapsedTime();
-				ship.position.y = jumpAmp * Math.sin( 1 * PI* jumpTime) + hoverDist;
-				ship.rotation.x = PI/16 *Math.sin( 2 * PI *jumpTime);
+				ship.position.y = jumpOrdive * jumpAmp * Math.sin( 1 * PI* jumpTime) + hoverDist;
+				ship.rotation.x = jumpOrdive * PI/16 *Math.sin( 2 * PI *jumpTime);
 			}
 		}
 		else if ( keyboard.pressed("space") ) { //if jump is not in progress and user hits space
 			//console.log("bajs");
+			jumpOrdive = 1;
 			jump(); //starts jump timer
+		}
+		else if(keyboard.pressed("shift") ) {
+			jumpOrdive = -1;
+			jump();
+
 		}
 		
 		//generera ett vägsegment 
