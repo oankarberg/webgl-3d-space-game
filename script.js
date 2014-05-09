@@ -1,4 +1,14 @@
 
+/**
+ * Example 4 is as simple as it gets.  Just a timer object and
+ * a counter that is displayed as it updates.
+ */
+
+
+
+
+/**START WEBGL **/
+
 $(window).load(function() {
 
 	$('#loading').hide();
@@ -11,7 +21,6 @@ $(window).load(function() {
 	var clock = new THREE.Clock();
 
 	//var vec3 = new THREE.Vector3();
-
 	// custom global variables
 	var jumpClock;
 	var jumpTime = 0.0;
@@ -59,6 +68,7 @@ $(window).load(function() {
 		camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
 
 		camera.position.set(0,320,900);
+		camera.lookAt(scene.position);
 		lookatpoint = new THREE.Object3D();
 		
 
@@ -90,7 +100,7 @@ $(window).load(function() {
 		floor.position.y = -10.5;
 		floor.position.z = -950;
 		floor.rotation.x = PI / 2;
-		scene.add(floor);
+	
 		
 		// SKYBOX/FOG
 		var skyBoxGeometry  = new THREE.CubeGeometry( 4000, 4000, 4000 );
@@ -109,7 +119,8 @@ $(window).load(function() {
 	    //Directional light
 	    var directionalLight = new THREE.DirectionalLight( 0xffeedd );
 	    directionalLight.position.set( 0, 10, 10 ).normalize();
-	    scene.add( directionalLight );
+	 
+	 	scene.setGravity(new THREE.Vector3( 0, -1800, 0 ));
 		
 
 			////////////
@@ -229,18 +240,24 @@ $(window).load(function() {
 		} );
 */
 		//för modell
-		/*
-		ship.visible = false;
-		rightWing.visible = false;
-		leftWing.visible = false;
-		cube.visible = false;
-		*/
-
+		
+		ship.visible = true;
+		rightWing.visible = true;
+		leftWing.visible = true;
+		cube.visible = true;
+		
 		//lägg till objekt i scenen/gruppen etc
 
-		camera.add(lookatpoint);
-		camera.lookAt(lookatpoint.position);
-		scene.add( camera );
+		scene.add(camera);
+		//cube.add(camera);
+		//cube.add(skyBox);
+		scene.add(cube);
+		scene.add(floor);
+		scene.add( directionalLight );
+
+		//camera.add(lookatpoint);
+		//camera.lookAt(lookatpoint.position);
+		//scene.add( camera );
 		ship.add( leftWing );
 		ship.add( rightWing );
 		ship.add( aim );
@@ -250,23 +267,20 @@ $(window).load(function() {
 
 		//scene.add(cube2);
 		group.add( lightMain );
-		cube.add( skyBox );
-		//cube.add(group);
 		cube.add(group);
 		cube.add(ship);
-		scene.add(cube);
-
-
 
 	}
 
 	function animate() 
 	{
 	    requestAnimationFrame( animate );
+
+	    cube.lookAt(cube.position);
+
 		render();		
 		update();
 
-		//cube.lookAt(cube);
 		checkRotation();
 
 		scene.simulate();
@@ -301,7 +315,7 @@ $(window).load(function() {
 	function update()
 	{	
 
-		var jumpvec = new THREE.Vector3( 0, 20, 0 );
+		var jumpvec = new THREE.Vector3( 0, 700, 0 );
 		var rightvec = new THREE.Vector3( 20, 0, 0 );
 		var leftvec = new THREE.Vector3( -20, 0, 0 );
 		var toscreenvec = new THREE.Vector3( 0, 0, 20 );
@@ -406,6 +420,7 @@ $(window).load(function() {
 		}
 		else if ( keyboard.pressed("space") ) { //if jump is not in progress and user hits space
 			//console.log("bajs");
+			cube.applyCentralImpulse(jumpvec);
 			jumpOrdive = 1;
 			jump(); //starts jump timer
 		}
@@ -444,13 +459,14 @@ $(window).load(function() {
 		jumpClock = new THREE.Clock();
 		jumpClock.start();
 		jumpTime = jumpClock.getElapsedTime();
+
+
 	}
 
 	function render() 
 	{
 		renderer.render( scene, camera );
 	}	
-	
 //ground generating function
 	//variables
 	var laneWidth = 300,		//bredd på varje vägfil
@@ -462,7 +478,7 @@ $(window).load(function() {
 	var groundTexture = new THREE.ImageUtils.loadTexture( 'images/checkerboard.jpg' );
 		groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping; 
 		groundTexture.repeat.set( 0.50, 2.0 );
-	var groundMaterial = new THREE.MeshLambertMaterial( { color: 0x444444, map: groundTexture, side: THREE.DoubleSiwde } );
+	var groundMaterial = new THREE.MeshLambertMaterial( { color: 0x444444, map: groundTexture, side: THREE.DoubleSide } );
 	var groundGeometry;
 	
 	function generateGroundSegment() //generates a ground segment
@@ -486,4 +502,37 @@ $(window).load(function() {
 		*/
 	}
 
+});
+
+
+// FÖR TIMERN
+function pad(number, length) {
+    var str = '' + number;
+    while (str.length < length) {str = '0' + str;}
+    return str;
+}
+function formatTime(time) {
+    var min = parseInt(time / 6000),
+        sec = parseInt(time / 100) - (min * 60),
+        hundredths = pad(time - (sec * 100) - (min * 6000), 2);
+    return (min > 0 ? pad(min, 2) : "00") + ":" + pad(sec, 2) + ":" + hundredths;
+}
+
+var Example1 = new (function() {
+    var $stopwatch, // Stopwatch element on the page
+        incrementTime = 70, // Timer speed in milliseconds
+        currentTime = 0, // Current time in hundredths of a second
+        updateTimer = function() {
+            $stopwatch.html(formatTime(currentTime));
+            currentTime += incrementTime / 10;
+        },
+        init = function() {
+            $stopwatch = $('#stopwatch');
+            Example1.Timer = $.timer(updateTimer, incrementTime, true);
+        };
+    this.resetStopwatch = function() {
+        currentTime = 0;
+        this.Timer.stop().once();
+    };
+    	$(init);
 });

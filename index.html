@@ -19,10 +19,9 @@
 			//Initiate Physijs
     		Physijs.scripts.worker = 'physics/physijs_worker.js';
     		Physijs.scripts.ammo = 'ammo.js';
-
-    
+    		
 			//Global Variable
-			var scene = new Physijs.Scene;
+			var scene = new Physijs.Scene();
 			var clock = new THREE.Clock();
 			var keyboard = new KeyboardState();
 
@@ -59,7 +58,7 @@
 			cube.position.x=2;
 			cube.rotation.x=0.5;
 			//CHANGE TO FALSE!
-			cube.visible = false;
+			cube.visible = true;
 			
 
 			var carobject;
@@ -74,12 +73,11 @@
 					cube.add(object);
 
 				} );
+
 			cube.add(camera);
 			cube.add(background);
 			scene.add(cube);
 
-			
-			
 		
 
 			var sphere = new Physijs.SphereMesh(geometrySphere, materialCube);

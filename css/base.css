@@ -10,3 +10,6 @@ body
 div#WebGL-container{display: none; float:left; position: absolute; }
 
 div#loading{width:400px; height:400px;}
+
+div#timer{padding-left:470px;}
+#stopwatch{font-size:1.3em;}
