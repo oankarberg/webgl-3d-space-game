@@ -6,7 +6,7 @@ $(window).load(function() {
 	$('#WebGL-container').show();
 
 	// standard global variables
-	var cube2, loader, engine, container, scene, camera, renderer, group, ship, cube, sphere, dt; //controls;
+	var cube2, loader, engine, container, scene, camera, renderer, group, ship, cube, sphere, dt, lookatpoint; //controls;
 	var keyboard = new THREEx.KeyboardState();
 	var clock = new THREE.Clock();
 
@@ -47,6 +47,7 @@ $(window).load(function() {
 		//to follow the ship in the z axis, such as camera, lights, skybox(?!), etc
 		group = new THREE.Object3D();
 
+
 		// CAMERA
 		var SCREEN_WIDTH = window.innerWidth, 
 			SCREEN_HEIGHT = window.innerHeight;
@@ -58,6 +59,7 @@ $(window).load(function() {
 		camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
 
 		camera.position.set(0,320,900);
+		lookatpoint = new THREE.Object3D();
 		
 
 		// RENDERER
@@ -214,10 +216,8 @@ $(window).load(function() {
 		engine.initialize(); // jag tog bort scene.add från ParticleEngine.js för att kunna använda ship.add istället
 		engine.positionBase.z = shipLength/2;
 
-
 		//laddar in modell
-		/*
-		loader = new THREE.OBJMTLLoader();
+		/*loader = new THREE.OBJMTLLoader();
 		loader.load( 'objects/Wraith_Raider_Starship.obj', 'objects/Wraith_Raider_Starship.mtl', function ( object ) {
 			//Object is the car, adding car to the cube for physics
 			object.scale.set(0.6,0.6,0.6);
@@ -226,8 +226,8 @@ $(window).load(function() {
 
 			//ship.add(object);
 
-		} );*/
-
+		} );
+*/
 		//för modell
 		/*
 		ship.visible = false;
@@ -237,8 +237,10 @@ $(window).load(function() {
 		*/
 
 		//lägg till objekt i scenen/gruppen etc
-		camera.lookAt(scene.position);
-		cube.add(camera);
+
+		camera.add(lookatpoint);
+		camera.lookAt(lookatpoint.position);
+		scene.add( camera );
 		ship.add( leftWing );
 		ship.add( rightWing );
 		ship.add( aim );
@@ -292,8 +294,7 @@ $(window).load(function() {
 	        camera.position.z = z * Math.cos(rotSpeed) + y * Math.sin(rotSpeed);
 	    }
 
-	    camera.lookAt(scene.position);
-
+	    camera.lookAt(lookatpoint.position);
 
 	}
 
@@ -306,6 +307,9 @@ $(window).load(function() {
 		var toscreenvec = new THREE.Vector3( 0, 0, 20 );
 		var awayscreenvec = new THREE.Vector3( 0, 0, -20);
 
+		camera.position.z = cube.position.z + 900;
+		lookatpoint.position.z = cube.position.z;
+		camera.lookAt(lookatpoint.position);
 		//the sphere control
 	/*
 		if ( keyboard.pressed("left") ) {
