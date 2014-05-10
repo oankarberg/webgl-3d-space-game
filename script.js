@@ -136,7 +136,6 @@ $(window).load(function() {
 		cube2 = new Physijs.BoxMesh(new THREE.CubeGeometry(100,100,50), floorMaterial,0.8);
 		cube2.position.y = 40;
 		cube2.position.z = -300;
-		//cube.visible = false;
 		cube.position.y = 40;
 		//skeppets geometri
 		var shipLength 	= 200, shipHeight = 60,	shipWidth = 60,
@@ -244,7 +243,7 @@ $(window).load(function() {
 		ship.visible = true;
 		rightWing.visible = true;
 		leftWing.visible = true;
-		cube.visible = true;
+		cube.visible = true;;
 		
 		//lägg till objekt i scenen/gruppen etc
 
@@ -276,13 +275,19 @@ $(window).load(function() {
 	{
 	    requestAnimationFrame( animate );
 
+	    // för att den endast ska åka i sidled 
 	    cube.lookAt(cube.position);
+
+	    		
+	    camera.position.z = cube.position.z + 900;
+		lookatpoint.position.z = cube.position.z;
+		camera.lookAt(lookatpoint.position);
+
 
 		render();		
 		update();
 
 		checkRotation();
-
 		scene.simulate();
 	}
 
@@ -321,9 +326,8 @@ $(window).load(function() {
 		var toscreenvec = new THREE.Vector3( 0, 0, 20 );
 		var awayscreenvec = new THREE.Vector3( 0, 0, -20);
 
-		camera.position.z = cube.position.z + 900;
-		lookatpoint.position.z = cube.position.z;
-		camera.lookAt(lookatpoint.position);
+
+		
 		//the sphere control
 	/*
 		if ( keyboard.pressed("left") ) {
