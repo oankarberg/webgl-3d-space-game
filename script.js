@@ -11,8 +11,8 @@
 
 $(window).load(function() {
 
+	// för loading screen
 	$('#loading').hide();
-
 	$('#WebGL-container').show();
 
 	// standard global variables
@@ -20,7 +20,6 @@ $(window).load(function() {
 	var keyboard = new THREEx.KeyboardState();
 	var clock = new THREE.Clock();
 
-	//var vec3 = new THREE.Vector3();
 	// custom global variables
 	var jumpClock;
 	var jumpTime = 0.0;
@@ -131,11 +130,7 @@ $(window).load(function() {
 		//////////////////////
 
 		//kuben som styr fysiken
-		cube = new Physijs.BoxMesh(new THREE.CubeGeometry(100,100,50), floorMaterial,0.8);
-
-		cube2 = new Physijs.BoxMesh(new THREE.CubeGeometry(100,100,50), floorMaterial,0.8);
-		cube2.position.y = 40;
-		cube2.position.z = -300;
+		cube = new Physijs.BoxMesh(new THREE.CubeGeometry(200,100,160), floorMaterial,0.8);
 		cube.position.y = 40;
 		//skeppets geometri
 		var shipLength 	= 200, shipHeight = 60,	shipWidth = 60,
@@ -244,27 +239,24 @@ $(window).load(function() {
 		rightWing.visible = true;
 		leftWing.visible = true;
 		cube.visible = true;;
-		
+
 		//lägg till objekt i scenen/gruppen etc
 
 		scene.add(camera);
 		//cube.add(camera);
-		//cube.add(skyBox);
+
 		scene.add(cube);
 		scene.add(floor);
 		scene.add( directionalLight );
 
-		//camera.add(lookatpoint);
-		//camera.lookAt(lookatpoint.position);
-		//scene.add( camera );
 		ship.add( leftWing );
 		ship.add( rightWing );
 		ship.add( aim );
 		ship.add( lightFront );
 		ship.add( lightRear );	
 		ship.add( engine.particleMesh );
+		//skyBox.add(cube);
 
-		//scene.add(cube2);
 		group.add( lightMain );
 		cube.add(group);
 		cube.add(ship);
@@ -278,11 +270,10 @@ $(window).load(function() {
 	    // för att den endast ska åka i sidled 
 	    cube.lookAt(cube.position);
 
-	    		
+
 	    camera.position.z = cube.position.z + 900;
 		lookatpoint.position.z = cube.position.z;
 		camera.lookAt(lookatpoint.position);
-
 
 		render();		
 		update();
@@ -313,12 +304,29 @@ $(window).load(function() {
 	        camera.position.z = z * Math.cos(rotSpeed) + y * Math.sin(rotSpeed);
 	    }
 
-	    camera.lookAt(lookatpoint.position);
+	    camera.lookAt(scene.position);
 
 	}
 
 	function update()
 	{	
+		// för att styra skeppet
+		shipControls();
+
+		//ger sekunder sen senaste 
+		dt = clock.getDelta();
+		engine.update( dt * 0.8 );	//uppdatera particles
+
+		//generera ett vägsegment 
+		shipDistZ = cube.position.z;
+		if ( shipDistZ-shipDistStart <= -500 ) {
+			scene.add( generateGroundSegment() );
+			shipDistStart = cube.position.z;
+		}
+	}
+
+
+	function shipControls(){
 
 		var jumpvec = new THREE.Vector3( 0, 700, 0 );
 		var rightvec = new THREE.Vector3( 20, 0, 0 );
@@ -326,8 +334,6 @@ $(window).load(function() {
 		var toscreenvec = new THREE.Vector3( 0, 0, 20 );
 		var awayscreenvec = new THREE.Vector3( 0, 0, -20);
 
-
-		
 		//the sphere control
 	/*
 		if ( keyboard.pressed("left") ) {
@@ -344,11 +350,6 @@ $(window).load(function() {
 		if ( keyboard.pressed("up") ) 
 			sphere.applyCentralImpulse(awayscreenvec);
 	*/
-
-		//ger sekunder sen senaste 
-		dt = clock.getDelta();
-
-		engine.update( dt * 0.8 );	//uppdatera particles
 
 		if ( keyboard.pressed("W") ) {
 			cube.applyCentralImpulse(awayscreenvec);
@@ -396,6 +397,7 @@ $(window).load(function() {
 				}	
 			}
 		}
+
 		else if (ship.rotation.z != 0 ){
 			ship.rotation.z = stabilizeShip( dt, ship.rotation.z ,1.0);
 		}
@@ -404,10 +406,12 @@ $(window).load(function() {
 		//skeppets x-position styrs av lutningen
 		//ship.position.x -= ship.rotation.z*50;
 
+/*		Används antagnligen inte.... finns ingen ship position
+
 		if ( Math.abs(ship.position.x) >= maxTransX ) {
 			ship.position.x = ship.position.x/Math.abs(ship.position.x) * maxTransX;
 		}
-
+*/
 
 		if (jumpTime != 0.0 ) { //if a jump is in progress
 			if (jumpClock.getElapsedTime() >= 1.0) { //if jump completed, end jump and reset variables to default values
@@ -423,7 +427,6 @@ $(window).load(function() {
 			}
 		}
 		else if ( keyboard.pressed("space") ) { //if jump is not in progress and user hits space
-			//console.log("bajs");
 			cube.applyCentralImpulse(jumpvec);
 			jumpOrdive = 1;
 			jump(); //starts jump timer
@@ -433,13 +436,7 @@ $(window).load(function() {
 			jump();
 
 		}
-		
-		//generera ett vägsegment 
-		shipDistZ = cube.position.z;
-		if ( shipDistZ-shipDistStart <= -500 ) {
-			scene.add( generateGroundSegment() );
-			shipDistStart = cube.position.z;
-		}
+
 	}
 
 	//stabiliserar skeppet.. 
@@ -463,15 +460,15 @@ $(window).load(function() {
 		jumpClock = new THREE.Clock();
 		jumpClock.start();
 		jumpTime = jumpClock.getElapsedTime();
-
-
 	}
 
 	function render() 
 	{
 		renderer.render( scene, camera );
 	}	
-//ground generating function
+
+
+	//ground generating function
 	//variables
 	var laneWidth = 300,		//bredd på varje vägfil
 		minSegmentLength = 200; //minsta längden på ett vägsegment
@@ -509,7 +506,11 @@ $(window).load(function() {
 });
 
 
-// FÖR TIMERN
+/// FÖR TIMERN ////
+//////////////////
+/////////////////
+
+
 function pad(number, length) {
     var str = '' + number;
     while (str.length < length) {str = '0' + str;}
