@@ -28,7 +28,7 @@ $(window).load(function() {
 
 	var maxRotX, maxTransX; //skeppets maximala rotation resp. förflyttning
 	var jumpAmp; //hur högt skeppet kan hoppa (jumpAmplitude)
-	var jumpOrdive = 1; //Dyka eller hoppa.
+	var jumpOrdive; //Dyka eller hoppa.
 	var hoverDist; //hur högt över banan som skeppet flyger
 	var shipSpeed;
 	
@@ -119,7 +119,7 @@ $(window).load(function() {
 	    var directionalLight = new THREE.DirectionalLight( 0xffeedd );
 	    directionalLight.position.set( 0, 10, 10 ).normalize();
 	 
-	 	scene.setGravity(new THREE.Vector3( 0, -1800, 0 ));
+	 	
 		
 
 			////////////
@@ -130,8 +130,10 @@ $(window).load(function() {
 		//////////////////////
 
 		//kuben som styr fysiken
-		cube = new Physijs.BoxMesh(new THREE.CubeGeometry(200,100,160), floorMaterial,0.8);
-		cube.position.y = 40;
+		cube = new Physijs.BoxMesh(new THREE.CubeGeometry(200,180,180), floorMaterial,0.8);
+		cube.position.y = 80;
+
+		scene.setGravity(new THREE.Vector3( 0, -1800, 0 ));
 		//skeppets geometri
 		var shipLength 	= 200, shipHeight = 60,	shipWidth = 60,
 			wingWidth	= 150, wingHeight = 20, wingDepth = 100;
@@ -154,10 +156,10 @@ $(window).load(function() {
 		maxRotX = PI /3; 	//skeppets maximala lutning
 		maxTransX = 625;	
 		jumpAmp = 150;
-		hoverDist = shipHeight / 2 + 80; //flyger 100units över planet 
-		shipSpeed = 800;
+		hoverDist = shipHeight / 2 + 30; //flyger 100units över planet 
+		shipSpeed = 200;
 
-		ship.position.y = shipHeight + 20;
+		ship.position.y = hoverDist;
 
 		leftWing.position.x = -30;
 		leftWing.rotation.y = PI * 1/3.2;
@@ -209,7 +211,7 @@ $(window).load(function() {
 		lightFront.shadowMapHeight = 1024; 
 		lightFront.shadowCameraNear = 500; 
 		lightFront.shadowCameraFar = 4000; 
-		lightFront.shadowCameraFov = 30; */
+		lightFront.shadowCameraFov = 30; 
 
 		lightRear.position.set( 0, shipHeight/2-10, shipLength/2+20);
 	/*	lightRear.intensity = 10.0;
@@ -238,7 +240,7 @@ $(window).load(function() {
 		ship.visible = true;
 		rightWing.visible = true;
 		leftWing.visible = true;
-		cube.visible = true;;
+		cube.visible = true;
 
 		//lägg till objekt i scenen/gruppen etc
 
@@ -257,7 +259,7 @@ $(window).load(function() {
 		ship.add( engine.particleMesh );
 		//skyBox.add(cube);
 
-		group.add( lightMain );
+		group.add(lightMain);
 		cube.add(group);
 		cube.add(ship);
 
@@ -269,8 +271,7 @@ $(window).load(function() {
 
 	    // för att den endast ska åka i sidled 
 	    cube.lookAt(cube.position);
-
-
+	    
 	    camera.position.z = cube.position.z + 900;
 		lookatpoint.position.z = cube.position.z;
 		camera.lookAt(lookatpoint.position);
@@ -422,19 +423,29 @@ $(window).load(function() {
 			}
 			else { //if the jump is still in progress
 				jumpTime = jumpClock.getElapsedTime();
+
 				ship.position.y = jumpOrdive * jumpAmp * Math.sin( 1 * PI* jumpTime) + hoverDist;
-				ship.rotation.x = jumpOrdive * PI/16 *Math.sin( 2 * PI *jumpTime);
+
+
+				// att göra: minska kubens höjd vid dyk
+				if(jumpOrdive < 0){
+					ship.rotation.x = -jumpOrdive * PI/16 *Math.sin( 2 * PI *jumpTime);
+				}
+				// rotation för hopp
+				else
+					ship.rotation.x = PI/16 *Math.sin( 2 * PI *jumpTime);
 			}
 		}
 		else if ( keyboard.pressed("space") ) { //if jump is not in progress and user hits space
 			cube.applyCentralImpulse(jumpvec);
-			jumpOrdive = 1;
+
+			// 0 för den ska endast hänga efter kuben
+			jumpOrdive = 0;
 			jump(); //starts jump timer
 		}
 		else if(keyboard.pressed("shift") ) {
-			jumpOrdive = -1;
+			jumpOrdive = -0.8;
 			jump();
-
 		}
 
 	}
