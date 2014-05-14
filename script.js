@@ -363,7 +363,7 @@ $(window).load(function() {
 
 		//var s = getVelocity();
 		//skeppets fart
-		if ( keyboard.pressed("W") ) {
+		if ( keyboard.pressed("W") && cube.getLinearVelocity().z > -5000 ) {
 
 			cube.applyCentralImpulse(awayscreenvec);
 
