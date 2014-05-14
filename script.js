@@ -482,10 +482,12 @@ $(window).load(function() {
 	//ground generating function
 	//variables
 	var laneWidth = 300,		//bredd på varje vägfil
-		minSegmentLength = 200; //minsta längden på ett vägsegment
+		minSegmentLength = 1800, //minsta längden på ett vägsegment
+		laneOverlap = 600;
 		
 	var	groundPosY = -10.5,
-		groundPosZ = 1950;		//uppdateras efter varje nytt segment, defaultvärdet ska vara lika med startplanets sista z-koordinat
+		groundPosZ = 1950,		//uppdateras efter varje nytt segment, defaultvärdet ska vara lika med startplanets sista z-koordinat
+		prevGroundLane = 0;		// -1 = vänster lane, 0 = mitten, 1 = höger lane
 		
 	var groundTexture = new THREE.ImageUtils.loadTexture( 'images/checkerboard.jpg' );
 		groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping; 
@@ -495,14 +497,26 @@ $(window).load(function() {
 	
 	function generateGroundSegment() //generates a ground segment
 	{
-		console.log("generera mark");
+		//console.log("generera mark");
 		var segLength = Math.floor((Math.random()*1000)+minSegmentLength);			//den faktiska längden på det segment som genereras
 		groundGeometry = new THREE.PlaneGeometry(laneWidth, segLength, 10, 10);
 		var ground = new Physijs.BoxMesh(groundGeometry, groundMaterial);	
-		ground.position.x = laneWidth * Math.floor((Math.random()*3)-1);			//randomgrejen genererar -1, 0 eller 1
-		ground.position.z = -groundPosZ - segLength/2;
+		
+		var newGroundLane = Math.floor((Math.random()*3)-1); //randomgrejen genererar -1, 0 eller 1 ( alltså vilken lane som ground ska hamna i)
 		ground.rotation.x = PI / 2;
-		groundPosZ += segLength;			// öka på för att nästa segment ska hamna på korrekt plats
+
+		if( newGroundLane == prevGroundLane ) {
+			ground.position.z = -groundPosZ - segLength/2;
+			groundPosZ += segLength;			// öka på för att nästa segment ska hamna på korrekt plats
+		}
+		else {
+			ground.position.z = -groundPosZ - segLength/2 + laneOverlap;
+			groundPosZ += segLength -600 ;			// öka på för att nästa segment ska hamna på korrekt plats
+		}
+
+		ground.position.x = laneWidth * newGroundLane;
+		prevGroundLane = newGroundLane;		
+		
 		return ground;
 	}	
 	///MÅSTE!!! MÅSTE lägga till removeGroundSegment() ( tror jag.. )
