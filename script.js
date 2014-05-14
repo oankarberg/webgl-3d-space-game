@@ -28,7 +28,7 @@ $(window).load(function() {
 
 	//ground and obstacle variables
 	var laneWidth = 300,		//bredd på varje vägfil
-		minSegmentLength = 1800, //minsta längden på ett vägsegment
+		minSegmentLength = 2000, //minsta längden på ett vägsegment
 		laneOverlap = 1000;
 		
 	var	groundPosY = -10.5,
@@ -255,7 +255,7 @@ $(window).load(function() {
 		//lägg till objekt i scenen/gruppen etc
 		var i;
 		for (i = 0; i < 10 ; i++) {
-			scene.add(generateGroundSegment());
+			generateGroundSegment();
 		}
 
 		cube.add(skyBox);
@@ -354,7 +354,7 @@ $(window).load(function() {
 		shipDistZ = cube.position.z;
 
 		if ( shipDistZ-shipDistStart <= -500 ) {
-			scene.add( generateGroundSegment() );
+			generateGroundSegment();
 			shipDistStart = cube.position.z;
 		}
 
@@ -389,7 +389,7 @@ $(window).load(function() {
 
 		//var s = getVelocity();
 		//skeppets fart
-		if ( keyboard.pressed("W") && cube.getLinearVelocity().z > -4000 ) {
+		if ( keyboard.pressed("W") && cube.getLinearVelocity().z > -3000 ) {
 
 			cube.applyCentralImpulse(awayscreenvec);
 
@@ -557,8 +557,20 @@ $(window).load(function() {
 		scene.add(obstacle)	;
 
 		prevGroundLane = newGroundLane;
-		
-		return ground;
+
+		//För att ibland kunna välja väg, höger eller vänster
+		//Lite fel nu.. blir överlappning ibland.. orkar inte fixa atm
+		if(Math.abs(newGroundLane)==1 && Math.floor(Math.random()*5) == 1) {
+			var ground2 = new Physijs.BoxMesh(groundGeometry, groundMaterial);
+			ground2.rotation.x = ground.rotation.x;
+			ground2.position.x = -1*ground.position.x;
+			ground2.position.y = groundPosY;
+			ground2.position.z = ground.position.z;
+			ground2.name = 'ground';
+			scene.add(ground2);
+		}
+		ground.name = 'ground';
+		scene.add(ground);
 	}	
 	///MÅSTE!!! MÅSTE lägga till removeGroundSegment() ( tror jag.. )
 	function removeGroundSegment() 
