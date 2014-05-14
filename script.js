@@ -55,7 +55,7 @@ $(window).load(function() {
 
 		camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
 
-		camera.position.set(0,320,900);
+		camera.position.set(0,400,1200);
 		camera.lookAt(scene.position);
 		lookatpoint = new THREE.Object3D();
 		
@@ -79,9 +79,9 @@ $(window).load(function() {
 		THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
 				
 		// FLOOR
-		var floorTexture = new THREE.ImageUtils.loadTexture( 'images/checkerboard.jpg' );
+		var floorTexture = new THREE.ImageUtils.loadTexture( 'texture/motherboard.jpg' );
 		floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
-		floorTexture.repeat.set( 1.5, 10 );
+		floorTexture.repeat.set( 1, 1 );
 		var floorMaterial = new THREE.MeshLambertMaterial( { color: 0x444444, map: floorTexture, side: THREE.DoubleSide } );
 		var floorGeometry = new THREE.PlaneGeometry(300, 2000, 10, 10);
 		var floor = new Physijs.BoxMesh(floorGeometry, floorMaterial);
@@ -91,10 +91,10 @@ $(window).load(function() {
 	
 		
 		// SKYBOX/FOG
-		var skyBoxGeometry  = new THREE.CubeGeometry( 4000, 4000, 4000 );
-		var skyBoxMaterial  = new THREE.MeshLambertMaterial( {map:THREE.ImageUtils.loadTexture('texture/sky.jpg'), side: THREE.BackSide } );
+		var skyBoxGeometry  = new THREE.CubeGeometry( 8000, 8000, 30000 );
+		var skyBoxMaterial  = new THREE.MeshLambertMaterial( {map:THREE.ImageUtils.loadTexture('texture/space.jpg'), side: THREE.BackSide } );
 		var skyBox 			= new THREE.Mesh( skyBoxGeometry, skyBoxMaterial );
-		skyBox.position.z = -1500;
+		skyBox.position.y = 1500;
 	    
 	    sphere = new Physijs.SphereMesh(new THREE.SphereGeometry(100, 3200), floorMaterial, 0.2);
 		sphere.position.y = 100;
@@ -229,10 +229,12 @@ $(window).load(function() {
 		ship.visible = true;
 		rightWing.visible = true;
 		leftWing.visible = true;
-		cube.visible = true;
+		cube.visible = false;
 
 		//lägg till objekt i scenen/gruppen etc
-
+		cube.add(skyBox);
+		camera.add(skyBox);
+		//scene.add(skyBox);
 		scene.add(camera);
 		//cube.add(camera);
 
@@ -246,7 +248,8 @@ $(window).load(function() {
 		ship.add( lightFront );
 		ship.add( lightRear );	
 		ship.add( engine.particleMesh );
-		//skyBox.add(cube);
+
+		
 
 		group.add(lightMain);
 		cube.add(group);
@@ -269,6 +272,8 @@ $(window).load(function() {
 		update();
 
 		checkRotation();
+
+
 
 		// här dör man
 		if(cube.position.y < -100)
@@ -311,6 +316,8 @@ $(window).load(function() {
 
 		//ger sekunder sen senaste 
 		dt = clock.getDelta();
+		console.log(dt);
+
 		engine.update( dt * 0.8 );	//uppdatera particles
 
 		//generera ett vägsegment 
@@ -487,9 +494,9 @@ $(window).load(function() {
 		
 	var	obstaclePosZ =500;
 		
-	var groundTexture = new THREE.ImageUtils.loadTexture( 'images/checkerboard.jpg' );
+	var groundTexture = new THREE.ImageUtils.loadTexture( 'texture/motherboard.jpg' );
 		groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping; 
-		groundTexture.repeat.set( 0.50, 2.0 );
+		groundTexture.repeat.set( 1, 1 );
 	var groundMaterial = new THREE.MeshLambertMaterial( { color: 0x444444, map: groundTexture, side: THREE.DoubleSide } );
 	var groundGeometry;
 	var obstacleGeometry;

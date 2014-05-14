@@ -8,7 +8,6 @@ function initialize_GUI(){
     $('#stopwatch').css('margin-left', window.innerWidth*0.44);
 }
 
-
 function endGame(id){
 
         // stop loop
