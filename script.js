@@ -7,7 +7,7 @@ $(window).load(function() {
 	initialize_GUI();
 
 	// standard global variables
-	var cube2, loader, engine, container, scene, camera, renderer, group, ship, cube, sphere, dt, lookatpoint; //controls;
+	var velocity, pos1, pos2, cube2, loader, engine, container, scene, camera, renderer, group, ship, cube, sphere, dt, lookatpoint; //controls;
 	var keyboard = new THREEx.KeyboardState();
 	var clock = new THREE.Clock();
 
@@ -83,7 +83,7 @@ $(window).load(function() {
 		floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
 		floorTexture.repeat.set( 1, 1 );
 		var floorMaterial = new THREE.MeshLambertMaterial( { color: 0x444444, map: floorTexture, side: THREE.DoubleSide } );
-		var floorGeometry = new THREE.PlaneGeometry(300, 2000, 10, 10);
+		var floorGeometry = new THREE.PlaneGeometry(300, 200000, 10, 10);
 		var floor = new Physijs.BoxMesh(floorGeometry, floorMaterial);
 		floor.position.y = -10.5;
 		floor.position.z = -950;
@@ -259,8 +259,10 @@ $(window).load(function() {
 
 	function animate() 
 	{
+
 	    var requestId = requestAnimationFrame( animate );
 
+	    time1 = cube.position.z;
 	    // för att den endast ska åka i sidled 
 	    cube.lookAt(new THREE.Vector3( 0, 0, 1500 ) );
 	    
@@ -311,16 +313,18 @@ $(window).load(function() {
 
 	function update()
 	{	
+
 		// för att styra skeppet
 		shipControls();
 
 		//ger sekunder sen senaste 
 		dt = clock.getDelta();
-		console.log(dt);
 
 		engine.update( dt * 0.8 );	//uppdatera particles
 
 		//generera ett vägsegment 
+		pos1 = cube.position.z;
+
 		shipDistZ = cube.position.z;
 
 		if ( shipDistZ-shipDistStart <= -500 ) {
@@ -329,6 +333,24 @@ $(window).load(function() {
 		}
 
 	}
+
+/*
+	function getVelocity(){
+
+		var temp = $('#timer span').html();
+		var tempArr = temp.split(":");
+		var seconds = parseInt(tempArr[1]);
+
+		if(seconds % 2 == 0){
+			pos2 = cube.position.z;
+			
+		}
+		var s = pos2 - pos1;
+
+		console.log(Math.abs(s));
+
+		return s;
+	}*/
 
 
 	function shipControls(){
@@ -339,25 +361,16 @@ $(window).load(function() {
 		var toscreenvec = new THREE.Vector3( 0, 0, 20 );
 		var awayscreenvec = new THREE.Vector3( 0, 0, -20);
 
-		//the sphere control
-	/*
-		if ( keyboard.pressed("left") ) {
-			sphere.applyCentralImpulse(leftvec);
-			console.log("hej");
-		}
-
-		if ( keyboard.pressed("right") ) 
-			sphere.applyCentralImpulse(rightvec);
-
-		if ( keyboard.pressed("down") ) 
-			sphere.applyCentralImpulse(toscreenvec);
-			
-		if ( keyboard.pressed("up") ) 
-			sphere.applyCentralImpulse(awayscreenvec);
-	*/
-
+		//var s = getVelocity();
+		//skeppets fart
 		if ( keyboard.pressed("W") ) {
+
 			cube.applyCentralImpulse(awayscreenvec);
+
+			//if(Math.abs(s) > 20){
+			//	cube.applyCentralImpulse(toscreenvec);
+		//	}
+
 			engine.positionStyle = Type.SPHERE;
 		}
 
