@@ -157,7 +157,7 @@ $(window).load(function() {
 		hoverDist = shipHeight / 2 + 80; //flyger 100units över planet 
 		shipSpeed = 800;
 
-		ship.position.y = shipHeight + 20;
+		ship.position.y = hoverDist;
 
 		leftWing.position.x = -30;
 		leftWing.rotation.y = PI * 1/3.2;
@@ -472,31 +472,40 @@ $(window).load(function() {
 	//variables
 	var laneWidth = 300,		//bredd på varje vägfil
 		minSegmentLength = 1800, //minsta längden på ett vägsegment
-		laneOverlap = 600;
+		laneOverlap = 1000;
 		
 	var	groundPosY = -10.5,
 		groundPosZ = 1950,		//uppdateras efter varje nytt segment, defaultvärdet ska vara lika med startplanets sista z-koordinat
 		prevGroundLane = 0;		// -1 = vänster lane, 0 = mitten, 1 = höger lane
+		
+	var	obstaclePosZ =500;
 		
 	var groundTexture = new THREE.ImageUtils.loadTexture( 'images/checkerboard.jpg' );
 		groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping; 
 		groundTexture.repeat.set( 0.50, 2.0 );
 	var groundMaterial = new THREE.MeshLambertMaterial( { color: 0x444444, map: groundTexture, side: THREE.DoubleSide } );
 	var groundGeometry;
+	var obstacleGeometry;
+
 	
 	function generateGroundSegment() //generates a ground segment
 	{
 		//console.log("generera mark");
 		var segLength = Math.floor((Math.random()*1000)+minSegmentLength);			//den faktiska längden på det segment som genereras
-		groundGeometry = new THREE.PlaneGeometry(laneWidth, segLength, 10, 10);
+		groundGeometry = new THREE.PlaneGeometry(laneWidth, segLength); 	//antalet segment är 1 default, tog bort 2 sista parametrarna..Lagg?
+		obstacleGeometry = new THREE.PlaneGeometry(laneWidth, hoverDist);
 		var ground = new Physijs.BoxMesh(groundGeometry, groundMaterial);	
+		var obstacle = new Physijs.BoxMesh(obstacleGeometry, groundMaterial); //hinder i banan, genereras på planet	
 		
 		var newGroundLane = Math.floor((Math.random()*3)-1); //randomgrejen genererar -1, 0 eller 1 ( alltså vilken lane som ground ska hamna i)
 		ground.rotation.x = PI / 2;
 
 		if( newGroundLane == prevGroundLane ) {
 			ground.position.z = -groundPosZ - segLength/2;
+			obstacle.position.z = -groundPosZ - segLength/2;
 			groundPosZ += segLength;			// öka på för att nästa segment ska hamna på korrekt plats
+
+
 		}
 		else {
 			ground.position.z = -groundPosZ - segLength/2 + laneOverlap;
@@ -504,7 +513,11 @@ $(window).load(function() {
 		}
 
 		ground.position.x = laneWidth * newGroundLane;
-		prevGroundLane = newGroundLane;		
+		prevGroundLane = newGroundLane;	
+
+		obstacle.position.y = hoverDist/2;
+		obstacle.position.x = laneWidth * newGroundLane;
+		scene.add(obstacle)	;
 		
 		return ground;
 	}	
