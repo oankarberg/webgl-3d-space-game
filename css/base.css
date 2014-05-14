@@ -9,7 +9,32 @@ body
 
 div#WebGL-container{display: none; float:left; position: absolute; }
 
+div#gameOverScreen{position: absolute; 
+				   display: none; 
+				   width:800px; 
+				   height: 500px; 
+				   background-color:black; 
+
+				   
+				   border-radius:30px;
+				   margin-left:300px;
+				   margin-top:100px;}
+
+a{cursor:pointer;}
+a:hover { color: #4C7E4B; }
+a:active { color: #c0c0c0;}
+
+div#gameOverScreen h1{margin-left: 50px; margin-top: 50px; color:white;}
 div#loading{width:400px; height:400px;}
 
-div#timer{padding-left:470px;}
-#stopwatch{font-size:1.3em;}
+
+div#gameOverScreen div#result{margin-left: 50px; width:300px; height:100px; }
+div#gameOverScreen div#result p{color:white;}
+div#gameOverScreen div#result #red{color:red;}
+div#gameOverScreen div#result p#try_again{cursor:pointer;}
+
+
+
+
+div#timer{}
+div#timer #stopwatch{font-size:3em; font-style:; font-weight:600;}

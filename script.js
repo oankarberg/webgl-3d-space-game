@@ -7,6 +7,8 @@
 
 
 
+var gameOver;
+var finalTime;
 /**START WEBGL **/
 
 $(window).load(function() {
@@ -14,6 +16,7 @@ $(window).load(function() {
 	// för loading screen
 	$('#loading').hide();
 	$('#WebGL-container').show();
+	$('#stopwatch').css('margin-left', window.innerWidth*0.44);
 
 	// standard global variables
 	var cube2, loader, engine, container, scene, camera, renderer, group, ship, cube, sphere, dt, lookatpoint; //controls;
@@ -23,6 +26,7 @@ $(window).load(function() {
 	// custom global variables
 	var jumpClock;
 	var jumpTime = 0.0;
+	gameOver = false;
 
 	//var lookAtPoint = new THREE.Vector3(0,0,-200); //vill inte att kameran tittar direkt på skeppet men en bit framför
 
@@ -130,7 +134,7 @@ $(window).load(function() {
 		//////////////////////
 
 		//kuben som styr fysiken
-		cube = new Physijs.BoxMesh(new THREE.CubeGeometry(200,180,180), floorMaterial,0.8);
+		cube = new Physijs.BoxMesh(new THREE.CubeGeometry(200,180,180), floorMaterial, 0.9);
 		cube.position.y = 80;
 
 		scene.setGravity(new THREE.Vector3( 0, -1800, 0 ));
@@ -267,10 +271,10 @@ $(window).load(function() {
 
 	function animate() 
 	{
-	    requestAnimationFrame( animate );
+	    var requestId = requestAnimationFrame( animate );
 
 	    // för att den endast ska åka i sidled 
-	    cube.lookAt(cube.position);
+	    cube.lookAt(new THREE.Vector3( 0, 0, 1500 ) );
 	    
 	    camera.position.z = cube.position.z + 900;
 		lookatpoint.position.z = cube.position.z;
@@ -280,7 +284,38 @@ $(window).load(function() {
 		update();
 
 		checkRotation();
+
+		// här dör man
+		if(cube.position.y < -100){
+			gameOver = true;
+			endGame(requestId);
+		}
+
 		scene.simulate();
+	}
+
+	function endGame(id){
+
+		// stop loop
+		window.cancelAnimationFrame(id);
+
+		$('#WebGL-container').css('opacity', '1').fadeTo(500, 0.4)
+		var time = $('#timer span').html();
+
+		// show results
+		$('#result #time').html(time);
+
+		$('#gameOverScreen').css('height', window.innerHeight/2);
+		$('#gameOverScreen').css('width', window.innerWidth/2);
+		$('#gameOverScreen').css('margin-top', window.innerHeight/4);
+		$('#gameOverScreen').css('margin-left', window.innerWidth/4);
+		$('#gameOverScreen').css('opacity', '0').fadeTo(500, 0.8)
+
+		//restart page
+		$('a').click(function(){
+
+			location.reload();
+		});
 	}
 
 	function checkRotation(){
@@ -320,10 +355,12 @@ $(window).load(function() {
 
 		//generera ett vägsegment 
 		shipDistZ = cube.position.z;
+
 		if ( shipDistZ-shipDistStart <= -500 ) {
 			scene.add( generateGroundSegment() );
 			shipDistStart = cube.position.z;
 		}
+
 	}
 
 
@@ -359,9 +396,8 @@ $(window).load(function() {
 
 		//liten eld då man inte gasar
 		else
-		{
 			engine.positionStyle = Type.CUBE;
-		}
+		
 
 		if ( keyboard.pressed("S") ) 
 			cube.applyCentralImpulse(toscreenvec);
@@ -541,6 +577,8 @@ $(window).load(function() {
 		*/
 	}
 
+
+
 });
 
 
@@ -552,30 +590,56 @@ $(window).load(function() {
 function pad(number, length) {
     var str = '' + number;
     while (str.length < length) {str = '0' + str;}
+
     return str;
 }
+
 function formatTime(time) {
     var min = parseInt(time / 6000),
         sec = parseInt(time / 100) - (min * 60),
         hundredths = pad(time - (sec * 100) - (min * 6000), 2);
+
+    // return span tag 
+    if(gameOver)
+		return $('#timer span').html();
+
     return (min > 0 ? pad(min, 2) : "00") + ":" + pad(sec, 2) + ":" + hundredths;
+
 }
 
-var Example1 = new (function() {
+
+var clock = new (function() {
+	
+	console.log("gay");
+
     var $stopwatch, // Stopwatch element on the page
         incrementTime = 70, // Timer speed in milliseconds
         currentTime = 0, // Current time in hundredths of a second
+
+
         updateTimer = function() {
             $stopwatch.html(formatTime(currentTime));
             currentTime += incrementTime / 10;
+
+            //spelet slut get finalTime (ful lösning increment med 0, klockan körs fortfarande)
+            if(gameOver){
+            	incrementTime = 0;
+            }
+           
         },
         init = function() {
+
             $stopwatch = $('#stopwatch');
-            Example1.Timer = $.timer(updateTimer, incrementTime, true);
+            clock.Timer = $.timer(updateTimer, incrementTime, true);
         };
+
+
     this.resetStopwatch = function() {
         currentTime = 0;
         this.Timer.stop().once();
     };
     	$(init);
 });
+
+
+
