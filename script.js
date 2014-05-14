@@ -1,22 +1,10 @@
 
-/**
- * Example 4 is as simple as it gets.  Just a timer object and
- * a counter that is displayed as it updates.
- */
 
-
-
-
-var gameOver;
-var finalTime;
 /**START WEBGL **/
-
 $(window).load(function() {
 
-	// för loading screen
-	$('#loading').hide();
-	$('#WebGL-container').show();
-	$('#stopwatch').css('margin-left', window.innerWidth*0.44);
+	// laddar in guit
+	initialize_GUI();
 
 	// standard global variables
 	var cube2, loader, engine, container, scene, camera, renderer, group, ship, cube, sphere, dt, lookatpoint; //controls;
@@ -26,9 +14,6 @@ $(window).load(function() {
 	// custom global variables
 	var jumpClock;
 	var jumpTime = 0.0;
-	gameOver = false;
-
-	//var lookAtPoint = new THREE.Vector3(0,0,-200); //vill inte att kameran tittar direkt på skeppet men en bit framför
 
 	var maxRotX, maxTransX; //skeppets maximala rotation resp. förflyttning
 	var jumpAmp; //hur högt skeppet kan hoppa (jumpAmplitude)
@@ -286,36 +271,11 @@ $(window).load(function() {
 		checkRotation();
 
 		// här dör man
-		if(cube.position.y < -100){
-			gameOver = true;
+		if(cube.position.y < -100)
 			endGame(requestId);
-		}
+		
 
 		scene.simulate();
-	}
-
-	function endGame(id){
-
-		// stop loop
-		window.cancelAnimationFrame(id);
-
-		$('#WebGL-container').css('opacity', '1').fadeTo(500, 0.4)
-		var time = $('#timer span').html();
-
-		// show results
-		$('#result #time').html(time);
-
-		$('#gameOverScreen').css('height', window.innerHeight/2);
-		$('#gameOverScreen').css('width', window.innerWidth/2);
-		$('#gameOverScreen').css('margin-top', window.innerHeight/4);
-		$('#gameOverScreen').css('margin-left', window.innerWidth/4);
-		$('#gameOverScreen').css('opacity', '0').fadeTo(500, 0.8)
-
-		//restart page
-		$('a').click(function(){
-
-			location.reload();
-		});
 	}
 
 	function checkRotation(){
@@ -577,69 +537,4 @@ $(window).load(function() {
 		*/
 	}
 
-
-
 });
-
-
-/// FÖR TIMERN ////
-//////////////////
-/////////////////
-
-
-function pad(number, length) {
-    var str = '' + number;
-    while (str.length < length) {str = '0' + str;}
-
-    return str;
-}
-
-function formatTime(time) {
-    var min = parseInt(time / 6000),
-        sec = parseInt(time / 100) - (min * 60),
-        hundredths = pad(time - (sec * 100) - (min * 6000), 2);
-
-    // return span tag 
-    if(gameOver)
-		return $('#timer span').html();
-
-    return (min > 0 ? pad(min, 2) : "00") + ":" + pad(sec, 2) + ":" + hundredths;
-
-}
-
-
-var clock = new (function() {
-	
-	console.log("gay");
-
-    var $stopwatch, // Stopwatch element on the page
-        incrementTime = 70, // Timer speed in milliseconds
-        currentTime = 0, // Current time in hundredths of a second
-
-
-        updateTimer = function() {
-            $stopwatch.html(formatTime(currentTime));
-            currentTime += incrementTime / 10;
-
-            //spelet slut get finalTime (ful lösning increment med 0, klockan körs fortfarande)
-            if(gameOver){
-            	incrementTime = 0;
-            }
-           
-        },
-        init = function() {
-
-            $stopwatch = $('#stopwatch');
-            clock.Timer = $.timer(updateTimer, incrementTime, true);
-        };
-
-
-    this.resetStopwatch = function() {
-        currentTime = 0;
-        this.Timer.stop().once();
-    };
-    	$(init);
-});
-
-
-
