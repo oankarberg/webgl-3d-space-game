@@ -7,7 +7,7 @@ $(window).load(function() {
 	initialize_GUI();
 
 	// standard global variables
-	var velocity, pos1, pos2, cube2, loader, engine, container, scene, camera, renderer, group, ship, cube, sphere, dt, lookatpoint; //controls;
+	var collideableMeshList, pos1, pos2, cube2, loader, engine, container, scene, camera, renderer, group, ship, cube, sphere, dt, lookatpoint; //controls;
 	var keyboard = new THREEx.KeyboardState();
 	var clock = new THREE.Clock();
 
@@ -246,6 +246,8 @@ $(window).load(function() {
 		} );
 */
 		//för modell
+
+		collideableMeshList = [];
 		
 		ship.visible = true;
 		rightWing.visible = true;
@@ -277,6 +279,7 @@ $(window).load(function() {
 
 		
 
+
 		group.add(lightMain);
 		cube.add(group);
 		cube.add(ship);
@@ -288,7 +291,6 @@ $(window).load(function() {
 
 	    var requestId = requestAnimationFrame( animate );
 
-	    time1 = cube.position.z;
 	    // för att den endast ska åka i sidled 
 	    cube.lookAt(new THREE.Vector3( 0, 0, 1500 ) );
 	    
@@ -300,8 +302,6 @@ $(window).load(function() {
 		update();
 
 		checkRotation();
-
-
 
 		// här dör man
 		if(cube.position.y < -100)
@@ -349,7 +349,6 @@ $(window).load(function() {
 		engine.update( dt * 0.8 );	//uppdatera particles
 
 		//generera ett vägsegment 
-
 		shipDistZ = cube.position.z;
 
 		if ( shipDistZ-shipDistStart <= -500 ) {
@@ -357,60 +356,40 @@ $(window).load(function() {
 			shipDistStart = cube.position.z;
 		}
 
+		shipCollideWithObstacle();
 	}
 
+	function shipCollideWithObstacle(){
 
-	function getVelocity(){
+		for (var vertexIndex = 0; vertexIndex < cube.geometry.vertices.length; vertexIndex++)
+		{       
+		    var localVertex = cube.geometry.vertices[vertexIndex].clone();
+		    var globalVertex = localVertex.applyMatrix4(cube.matrix);
+		    var directionVector = globalVertex.sub( cube.position );
 
-		var temp = $('#timer span').html();
-		var tempArr = temp.split(":");
-		var seconds = parseInt(tempArr[1]);
-		var ms = parseInt(tempArr[2]);
-		var s = 10;
+		    var ray = new THREE.Raycaster( cube.position, directionVector.clone().normalize() );
+		    var collisionResults = ray.intersectObjects( collideableMeshList );
 
-		if((seconds % 2) != 0){
-			//console.log("odd");
-			pos1 = Math.abs(cube.position.z);
+		    //Krock!!
+		    if ( collisionResults.length > 0 && collisionResults[0].distance < directionVector.length() ) 
+		    {
+		        console.log("hit");
+		    }
 		}
-
-		if(seconds % 2 == 0){
-			pos2 = Math.abs(cube.position.z);
-				//console.log("even");
-		}
-
-		if((ms > 90 && ms < 100) && pos1 > 0){
-			s = Math.abs(pos2 - pos1);
-			//return s;
-		}
-
-		console.log(s)
-		return s
-
-		//console.log("Pos 2 : " + pos2);
-		//var s = pos2 - pos1;
-
-		//console.log(Math.abs(s));
 	}
-
 
 	function shipControls(){
 
 		var jumpvec = new THREE.Vector3( 0, 700, 0 );
 		var rightvec = new THREE.Vector3( 20, 0, 0 );
 		var leftvec = new THREE.Vector3( -20, 0, 0 );
-		var toscreenvec = new THREE.Vector3( 0, 0, 200 );
+		var toscreenvec = new THREE.Vector3( 0, 0, 30 );
 		var awayscreenvec = new THREE.Vector3( 0, 0, -30);
 
-		var s = getVelocity();
 		//skeppets fart
 		if ( keyboard.pressed("W") && cube.getLinearVelocity().z > -3000 ) {
 
-
-			cube.applyCentralImpulse(awayscreenvec);
-
-			if(s > 2000){
-				cube.applyCentralImpulse(toscreenvec);
-			}
+			cube.applyCentralImpulse(awayscreenvec);			
 
 			engine.positionStyle = Type.SPHERE;
 		}
@@ -419,7 +398,6 @@ $(window).load(function() {
 		else
 			engine.positionStyle = Type.CUBE;
 		
-
 		if ( keyboard.pressed("S") ) 
 			cube.applyCentralImpulse(toscreenvec);
 
@@ -483,7 +461,6 @@ $(window).load(function() {
 
 				ship.position.y = jumpOrdive * jumpAmp * Math.sin( 1 * PI* jumpTime) + hoverDist;
 
-
 				// att göra: minska kubens höjd vid dyk
 				if(jumpOrdive < 0){
 					ship.rotation.x = -jumpOrdive * PI/16 *Math.sin( 2 * PI *jumpTime);
@@ -546,6 +523,12 @@ $(window).load(function() {
 		var ground = new Physijs.BoxMesh(groundGeometry, groundMaterial);	
 		var obstacle = new Physijs.BoxMesh(obstacleGeometry, obstacleMaterial); //hinder i banan, genereras på planet	
 		
+		/*RENSA ARRAY PÅ ONÖDIG DATA?? **/
+		//if(collidebleMesh.length > 20)
+		//	collidebleMesh = [];
+
+		collideableMeshList.push(obstacle); // lägg till nytt objekt i array
+
 		var newGroundLane = Math.floor((Math.random()*5)-1); //randomgrejen genererar -1, 0 eller 1 ( alltså vilken lane som ground ska hamna i)
 		if(newGroundLane == 3 || newGroundLane == 2) {
 			newGroundLane = 0;
