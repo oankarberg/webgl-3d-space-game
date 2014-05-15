@@ -703,6 +703,7 @@ $(window).load(function() {
 						checkIfCollect[indexCoins] = true;
 						TOTALCOINS++;
 						indexCoins++;
+						$('#coins #totalcoins').html(TOTALCOINS);
 						scene.remove(coins[indexCoins-1]);
 						
 						

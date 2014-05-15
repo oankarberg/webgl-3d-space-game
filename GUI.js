@@ -6,6 +6,7 @@ function initialize_GUI(){
     $('#loading').hide();
     $('#WebGL-container').show();
     $('#stopwatch').css('margin-left', window.innerWidth*0.43);
+    $('#coins').css('margin-left', window.innerWidth*0.2);
 
 }
 

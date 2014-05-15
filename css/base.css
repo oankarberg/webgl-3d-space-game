@@ -40,3 +40,20 @@ div#gameOverScreen div#result p#try_again{cursor:pointer;}
 
 div#timer{position:absolute; bottom:10px;}
 div#timer #stopwatch{font-size:3em; color:white; font-weight:600; }
+
+div#coins{
+	position: absolute;
+	width:200px;
+
+	z-index: 40; 
+	top:10px;
+
+}
+div#coins #totalcoins
+{
+	color:white;
+}
+h1.white {
+	color:white;
+	font-size:2em;
+}
