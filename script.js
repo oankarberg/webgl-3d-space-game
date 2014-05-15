@@ -1,5 +1,4 @@
 
-
 /**START WEBGL **/
 $(window).load(function() {
 
@@ -7,7 +6,7 @@ $(window).load(function() {
 	initialize_GUI();
 
 	// standard global variables
-	var collideableMeshList, pos1, pos2, cube2, loader, engine, container, scene, camera, renderer, group, ship, cube, sphere, dt, lookatpoint; //controls;
+	var floorList, collideableMeshList, pos1, pos2, cube2, loader, engine, container, scene, camera, renderer, group, ship, cube, sphere, dt, lookatpoint; //controls;
 	var keyboard = new THREEx.KeyboardState();
 	var clock = new THREE.Clock();
 
@@ -20,6 +19,7 @@ $(window).load(function() {
 	var jumpOrdive; //Dyka eller hoppa.
 	var hoverDist; //hur högt över banan som skeppet flyger
 	var shipSpeed;
+	var cubeMass = 0.7;
 
 	//SKEPPETS GEOMETRI
 	var shipLength 	= 200, shipHeight = 60,	shipWidth = 60,
@@ -28,7 +28,7 @@ $(window).load(function() {
 
 	//CUBE GEOMETRI
 	var cubeX = 200,
-		cubeY = 180,
+		cubeY = 40,
 		cubeZ = 180;
 
 			
@@ -127,8 +127,9 @@ $(window).load(function() {
 		floor.position.y = -10.5;
 		floor.position.z = -950;
 		floor.rotation.x = PI / 2;
+
 	
-		
+	
 		// SKYBOX/FOG
 		var skyBoxGeometry  = new THREE.CubeGeometry( 20000, 8000, 30000 );
 		var skyBoxMaterial  = new THREE.MeshLambertMaterial( {map:THREE.ImageUtils.loadTexture('texture/space.jpg'), side: THREE.BackSide } );
@@ -158,8 +159,8 @@ $(window).load(function() {
 		//////////////////////
 	
 		//kuben som styr fysiken
-		cube = new Physijs.BoxMesh(new THREE.CubeGeometry(cubeX,cubeY,cubeZ), floorMaterial, 0.9);
-		cube.position.y = 80;
+		cube = new Physijs.BoxMesh(new THREE.CubeGeometry(cubeX,cubeY,cubeZ), floorMaterial, cubeMass);
+		cube.position.y = 200;
 
 		scene.setGravity(new THREE.Vector3( 0, -1800, 0 ));
 
@@ -265,11 +266,13 @@ $(window).load(function() {
 		//för modell
 
 		collideableMeshList = [];
+		floorList = [floor];
+		
 		
 		ship.visible = true;
 		rightWing.visible = true;
 		leftWing.visible = true;
-		cube.visible = false;
+		cube.visible = true;
 
 		//lägg till objekt i scenen/gruppen etc
 		var i;
@@ -320,7 +323,7 @@ $(window).load(function() {
 		checkRotation();
 
 		// här dör man
-		if(cube.position.y < -200)
+		if(cube.position.y < -500)
 			endGame(requestId, TOTALCOINS);
 	
 		scene.simulate();
@@ -344,8 +347,7 @@ $(window).load(function() {
 	        camera.position.y = y * Math.cos(rotSpeed) + z * Math.sin(rotSpeed);
 	        camera.position.z = z * Math.cos(rotSpeed) - y * Math.sin(rotSpeed);
 	    } else if (keyboard.pressed("B")){
-	        camera.position.y = x * Math.cos(rotSpeed) - y * Math.sin(rotSpeed);
-	        camera.position.z = z * Math.cos(rotSpeed) + y * Math.sin(rotSpeed);
+	        camera.position.y = 100;
 	    }
 
 	    camera.lookAt(scene.position);
@@ -372,7 +374,42 @@ $(window).load(function() {
 			shipDistStart = cube.position.z;
 		}
 
+		shipHover();
 		shipCollideWithObstacle();
+	}
+
+	function shipHover(){
+
+		var value = 200;
+		value -= cube.position.y;
+		value /= 200;
+
+		var jumpvec = new THREE.Vector3( 0,110*value, 0 );
+
+/*
+		for (var vertexIndex = 0; vertexIndex < cube.geometry.vertices.length; vertexIndex++)
+		{       
+		    var localVertex = cube.geometry.vertices[vertexIndex].clone();
+		    var globalVertex = localVertex.applyMatrix4(cube.matrix);
+		    var directionVector = globalVertex.sub( cube.position );
+
+		    console.log(directionVector.getComponent(0));
+		    console.log(directionVector.getComponent(1));
+		    console.log(directionVector.getComponent(2));*/
+
+		    var newCube = new THREE.Vector3(cube.position.x, cube.position.y-cubeY/2, cube.position.z);
+
+		    var ray = new THREE.Raycaster( newCube, new THREE.Vector3(0,-1,0), 0, 200);
+		    var collisionResults = ray.intersectObjects( floorList );
+
+		    //Krock!!
+		    if ( collisionResults.length > 0 && collisionResults[0].distance < 200 ) 
+		    {
+				  //var jumpvec = new THREE.Vector3( 0, 150 - collisionResults[0].distance, 0 );
+				  cube.applyCentralImpulse(jumpvec);
+		    }
+	//	}
+
 	}
 
 	function shipCollideWithObstacle(){
@@ -389,7 +426,7 @@ $(window).load(function() {
 		    //Krock!!
 		    if ( collisionResults.length > 0 && collisionResults[0].distance < directionVector.length() ) 
 		    {
-		        console.log("hit");
+		       // console.log("hit");
 		    }
 		}
 	}
@@ -397,7 +434,7 @@ $(window).load(function() {
 
 	function shipControls(){
 
-		var jumpvec = new THREE.Vector3( 0, 100, 0 );
+		var jumpvec = new THREE.Vector3( 0, 700, 0 );
 		var rightvec = new THREE.Vector3( 20, 0, 0 );
 		var leftvec = new THREE.Vector3( -20, 0, 0 );
 		var toscreenvec = new THREE.Vector3( 0, 0, 40 );
@@ -564,9 +601,6 @@ $(window).load(function() {
 		//console.log("generera mark");
 		var segLength = Math.floor((Math.random()*1000)+minSegmentLength);			//den faktiska längden på det segment som genereras
 		groundGeometry = new THREE.PlaneGeometry(laneWidth, segLength); 	//antalet segment är 1 default, tog bort 2 sista parametrarna..Lagg?
-
-	
-
 	
 
 		coinGeometry = new THREE.CylinderGeometry( coinRadiusTop, coinRadiusTop, 10, 32 );
@@ -584,6 +618,7 @@ $(window).load(function() {
 		//	collidebleMesh = [];
 
 		collideableMeshList.push(obstacle); // lägg till nytt objekt i array
+		floorList.push(ground);
 
 		var newGroundLane = Math.floor((Math.random()*5)-1); //randomgrejen genererar -1, 0 eller 1 ( alltså vilken lane som ground ska hamna i)
 		if(newGroundLane == 3 || newGroundLane == 2) {
@@ -659,6 +694,7 @@ $(window).load(function() {
 			ground2.position.y = groundPosY;
 			ground2.position.z = ground.position.z;
 			ground2.name = 'ground';
+		//	floorList.push(ground2);
 		//	scene.add(ground2);
 		}
 		ground.name = 'ground';
