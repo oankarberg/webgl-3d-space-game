@@ -323,7 +323,6 @@ $(window).load(function() {
 		engine.update( dt * 0.8 );	//uppdatera particles
 
 		//generera ett vägsegment 
-		pos1 = cube.position.z;
 
 		shipDistZ = cube.position.z;
 
@@ -334,23 +333,38 @@ $(window).load(function() {
 
 	}
 
-/*
+
 	function getVelocity(){
 
 		var temp = $('#timer span').html();
 		var tempArr = temp.split(":");
 		var seconds = parseInt(tempArr[1]);
+		var ms = parseInt(tempArr[2]);
+		var s = 10;
+
+		if((seconds % 2) != 0){
+			//console.log("odd");
+			pos1 = Math.abs(cube.position.z);
+		}
 
 		if(seconds % 2 == 0){
-			pos2 = cube.position.z;
-			
+			pos2 = Math.abs(cube.position.z);
+				//console.log("even");
 		}
-		var s = pos2 - pos1;
 
-		console.log(Math.abs(s));
+		if((ms > 90 && ms < 100) && pos1 > 0){
+			s = Math.abs(pos2 - pos1);
+			//return s;
+		}
 
-		return s;
-	}*/
+		console.log(s)
+		return s
+
+		//console.log("Pos 2 : " + pos2);
+		//var s = pos2 - pos1;
+
+		//console.log(Math.abs(s));
+	}
 
 
 	function shipControls(){
@@ -358,18 +372,19 @@ $(window).load(function() {
 		var jumpvec = new THREE.Vector3( 0, 700, 0 );
 		var rightvec = new THREE.Vector3( 20, 0, 0 );
 		var leftvec = new THREE.Vector3( -20, 0, 0 );
-		var toscreenvec = new THREE.Vector3( 0, 0, 20 );
-		var awayscreenvec = new THREE.Vector3( 0, 0, -20);
+		var toscreenvec = new THREE.Vector3( 0, 0, 200 );
+		var awayscreenvec = new THREE.Vector3( 0, 0, -30);
 
-		//var s = getVelocity();
+		var s = getVelocity();
 		//skeppets fart
 		if ( keyboard.pressed("W") ) {
 
+
 			cube.applyCentralImpulse(awayscreenvec);
 
-			//if(Math.abs(s) > 20){
-			//	cube.applyCentralImpulse(toscreenvec);
-		//	}
+			if(s > 2000){
+				cube.applyCentralImpulse(toscreenvec);
+			}
 
 			engine.positionStyle = Type.SPHERE;
 		}
