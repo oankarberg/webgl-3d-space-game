@@ -252,7 +252,7 @@ $(window).load(function() {
 		ship.visible = true;
 		rightWing.visible = true;
 		leftWing.visible = true;
-		cube.visible = false;
+		cube.visible = true;
 
 		//lägg till objekt i scenen/gruppen etc
 		var i;
@@ -290,7 +290,6 @@ $(window).load(function() {
 	{
 
 	    var requestId = requestAnimationFrame( animate );
-
 	    // för att den endast ska åka i sidled 
 	    cube.lookAt(new THREE.Vector3( 0, 0, 1500 ) );
 	    
@@ -304,10 +303,9 @@ $(window).load(function() {
 		checkRotation();
 
 		// här dör man
-		if(cube.position.y < -100)
+		if(cube.position.y < -200)
 			endGame(requestId);
-		
-
+	
 		scene.simulate();
 	}
 
@@ -383,11 +381,11 @@ $(window).load(function() {
 		var jumpvec = new THREE.Vector3( 0, 700, 0 );
 		var rightvec = new THREE.Vector3( 20, 0, 0 );
 		var leftvec = new THREE.Vector3( -20, 0, 0 );
-		var toscreenvec = new THREE.Vector3( 0, 0, 30 );
+		var toscreenvec = new THREE.Vector3( 0, 0, 40 );
 		var awayscreenvec = new THREE.Vector3( 0, 0, -30);
 
 		//skeppets fart
-		if ( keyboard.pressed("W") && cube.getLinearVelocity().z > -3000 ) {
+		if ( keyboard.pressed("W") && cube.getLinearVelocity().z > -2000 ) {
 
 			cube.applyCentralImpulse(awayscreenvec);			
 

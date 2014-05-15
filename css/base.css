@@ -11,7 +11,7 @@ body
 	overflow: hidden;
 }
 
-div#WebGL-container{display:none; margin-top:10px;float:left; position: absolute; }
+div#WebGL-container{display:none; float:left; position: absolute; }
 
 div#gameOverScreen{position: absolute; 
 				   display: none; 
@@ -38,5 +38,5 @@ div#gameOverScreen div#result p{color:white;}
 div#gameOverScreen div#result #red{color:red;}
 div#gameOverScreen div#result p#try_again{cursor:pointer;}
 
-div#timer{}
-div#timer #stopwatch{font-size:3em; font-style:; font-weight:600;}
+div#timer{position:absolute; bottom:10px;}
+div#timer #stopwatch{font-size:3em; color:white; font-weight:600; }
