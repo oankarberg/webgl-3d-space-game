@@ -26,6 +26,27 @@ $(window).load(function() {
 
 	var PI = Math.PI;
 
+	//ground and obstacle variables
+	var laneWidth = 300,		//bredd på varje vägfil
+		minSegmentLength = 2000, //minsta längden på ett vägsegment
+		laneOverlap = 1000;
+		
+	var	groundPosY = -10.5,
+		groundPosZ = 1950,		//uppdateras efter varje nytt segment, defaultvärdet ska vara lika med startplanets sista z-koordinat
+		prevGroundLane = 0;		// -1 = vänster lane, 0 = mitten, 1 = höger lane
+		
+	var	obstaclePosZ =500;
+		
+	var groundTexture = new THREE.ImageUtils.loadTexture( 'images/checkerboard.jpg' );
+		groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping; 
+		groundTexture.repeat.set( 0.5, 2.0 );
+	var groundMaterial = new THREE.MeshLambertMaterial( { color: 0x444444, map: groundTexture, side: THREE.DoubleSide } );
+	var groundGeometry;
+	var obstacleTexture = new THREE.ImageUtils.loadTexture( 'texture/motherboard.jpg' );
+	var obstacleMaterial = new THREE.MeshLambertMaterial( { color: 0x444444, map: obstacleTexture, side: THREE.DoubleSide } );
+	
+	var obstacleGeometry;
+
 	init();
 	animate();
 
@@ -83,7 +104,7 @@ $(window).load(function() {
 		floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
 		floorTexture.repeat.set( 1, 1 );
 		var floorMaterial = new THREE.MeshLambertMaterial( { color: 0x444444, map: floorTexture, side: THREE.DoubleSide } );
-		var floorGeometry = new THREE.PlaneGeometry(300, 200000, 10, 10);
+		var floorGeometry = new THREE.PlaneGeometry(300, 2000, 10, 10);
 		var floor = new Physijs.BoxMesh(floorGeometry, floorMaterial);
 		floor.position.y = -10.5;
 		floor.position.z = -950;
@@ -91,7 +112,7 @@ $(window).load(function() {
 	
 		
 		// SKYBOX/FOG
-		var skyBoxGeometry  = new THREE.CubeGeometry( 8000, 8000, 30000 );
+		var skyBoxGeometry  = new THREE.CubeGeometry( 20000, 8000, 30000 );
 		var skyBoxMaterial  = new THREE.MeshLambertMaterial( {map:THREE.ImageUtils.loadTexture('texture/space.jpg'), side: THREE.BackSide } );
 		var skyBox 			= new THREE.Mesh( skyBoxGeometry, skyBoxMaterial );
 		skyBox.position.y = 1500;
@@ -232,6 +253,11 @@ $(window).load(function() {
 		cube.visible = false;
 
 		//lägg till objekt i scenen/gruppen etc
+		var i;
+		for (i = 0; i < 10 ; i++) {
+			generateGroundSegment();
+		}
+
 		cube.add(skyBox);
 		camera.add(skyBox);
 		//scene.add(skyBox);
@@ -327,7 +353,7 @@ $(window).load(function() {
 		shipDistZ = cube.position.z;
 
 		if ( shipDistZ-shipDistStart <= -500 ) {
-			scene.add( generateGroundSegment() );
+			generateGroundSegment();
 			shipDistStart = cube.position.z;
 		}
 
@@ -377,7 +403,7 @@ $(window).load(function() {
 
 		var s = getVelocity();
 		//skeppets fart
-		if ( keyboard.pressed("W") ) {
+		if ( keyboard.pressed("W") && cube.getLinearVelocity().z > -3000 ) {
 
 
 			cube.applyCentralImpulse(awayscreenvec);
@@ -510,58 +536,56 @@ $(window).load(function() {
 	}	
 
 
-	//ground generating function
-	//variables
-	var laneWidth = 300,		//bredd på varje vägfil
-		minSegmentLength = 1800, //minsta längden på ett vägsegment
-		laneOverlap = 1000;
-		
-	var	groundPosY = -10.5,
-		groundPosZ = 1950,		//uppdateras efter varje nytt segment, defaultvärdet ska vara lika med startplanets sista z-koordinat
-		prevGroundLane = 0;		// -1 = vänster lane, 0 = mitten, 1 = höger lane
-		
-	var	obstaclePosZ =500;
-		
-	var groundTexture = new THREE.ImageUtils.loadTexture( 'texture/motherboard.jpg' );
-		groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping; 
-		groundTexture.repeat.set( 1, 1 );
-	var groundMaterial = new THREE.MeshLambertMaterial( { color: 0x444444, map: groundTexture, side: THREE.DoubleSide } );
-	var groundGeometry;
-	var obstacleGeometry;
-
-	
+	//ground generating function	
 	function generateGroundSegment() //generates a ground segment
 	{
 		//console.log("generera mark");
 		var segLength = Math.floor((Math.random()*1000)+minSegmentLength);			//den faktiska längden på det segment som genereras
 		groundGeometry = new THREE.PlaneGeometry(laneWidth, segLength); 	//antalet segment är 1 default, tog bort 2 sista parametrarna..Lagg?
-		obstacleGeometry = new THREE.PlaneGeometry(laneWidth, hoverDist);
+		obstacleGeometry = new THREE.PlaneGeometry(laneWidth, hoverDist,20);
 		var ground = new Physijs.BoxMesh(groundGeometry, groundMaterial);	
-		var obstacle = new Physijs.BoxMesh(obstacleGeometry, groundMaterial); //hinder i banan, genereras på planet	
+		var obstacle = new Physijs.BoxMesh(obstacleGeometry, obstacleMaterial); //hinder i banan, genereras på planet	
 		
-		var newGroundLane = Math.floor((Math.random()*3)-1); //randomgrejen genererar -1, 0 eller 1 ( alltså vilken lane som ground ska hamna i)
+		var newGroundLane = Math.floor((Math.random()*5)-1); //randomgrejen genererar -1, 0 eller 1 ( alltså vilken lane som ground ska hamna i)
+		if(newGroundLane == 3 || newGroundLane == 2) {
+			newGroundLane = 0;
+		}
+
 		ground.rotation.x = PI / 2;
 
 		if( newGroundLane == prevGroundLane ) {
 			ground.position.z = -groundPosZ - segLength/2;
-			obstacle.position.z = -groundPosZ - segLength/2;
+			obstacle.position.z = ground.position.z;
 			groundPosZ += segLength;			// öka på för att nästa segment ska hamna på korrekt plats
-
-
 		}
 		else {
 			ground.position.z = -groundPosZ - segLength/2 + laneOverlap;
-			groundPosZ += segLength -600 ;			// öka på för att nästa segment ska hamna på korrekt plats
+			obstacle.position.z = ground.position.z;
+			groundPosZ += (segLength-laneOverlap) ;			// öka på för att nästa segment ska hamna på korrekt plats
 		}
 
 		ground.position.x = laneWidth * newGroundLane;
-		prevGroundLane = newGroundLane;	
-
-		obstacle.position.y = hoverDist/2;
-		obstacle.position.x = laneWidth * newGroundLane;
-		scene.add(obstacle)	;
+		ground.position.y = groundPosY;	
 		
-		return ground;
+		obstacle.position.x = laneWidth * newGroundLane;
+		obstacle.position.y = hoverDist/2;
+		scene.add(obstacle)	;
+
+		prevGroundLane = newGroundLane;
+
+		//För att ibland kunna välja väg, höger eller vänster
+		//Lite fel nu.. blir överlappning ibland.. orkar inte fixa atm
+		if(Math.abs(newGroundLane)==1 && Math.floor(Math.random()*5) == 1) {
+			var ground2 = new Physijs.BoxMesh(groundGeometry, groundMaterial);
+			ground2.rotation.x = ground.rotation.x;
+			ground2.position.x = -1*ground.position.x;
+			ground2.position.y = groundPosY;
+			ground2.position.z = ground.position.z;
+			ground2.name = 'ground';
+			scene.add(ground2);
+		}
+		ground.name = 'ground';
+		scene.add(ground);
 	}	
 	///MÅSTE!!! MÅSTE lägga till removeGroundSegment() ( tror jag.. )
 	function removeGroundSegment() 
