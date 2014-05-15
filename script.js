@@ -7,7 +7,7 @@ $(window).load(function() {
 	initialize_GUI();
 
 	// standard global variables
-	var cube2, loader, engine, container, scene, camera, renderer, group, ship, cube, sphere, dt, lookatpoint; //controls;
+	var collideableMeshList, pos1, pos2, cube2, loader, engine, container, scene, camera, renderer, group, ship, cube, sphere, dt, lookatpoint; //controls;
 	var keyboard = new THREEx.KeyboardState();
 	var clock = new THREE.Clock();
 
@@ -25,6 +25,13 @@ $(window).load(function() {
 	var shipLength 	= 200, shipHeight = 60,	shipWidth = 60,
 			wingWidth	= 150, wingHeight = 20, wingDepth = 100;
 
+
+	//CUBE GEOMETRI
+	var cubeX = 200,
+		cubeY = 180,
+		cubeZ = 180;
+
+			
 	var coins = []; //array med coins
 	var checkIfCollect = []; //satt till false i generateGroundSegment
 	var indexCoins = 0;
@@ -33,6 +40,27 @@ $(window).load(function() {
 		shipDistStart = 0;
 
 	var PI = Math.PI;
+
+	//ground and obstacle variables
+	var laneWidth = 300,		//bredd på varje vägfil
+		minSegmentLength = 2000, //minsta längden på ett vägsegment
+		laneOverlap = 1000;
+		
+	var	groundPosY = -10.5,
+		groundPosZ = 1950,		//uppdateras efter varje nytt segment, defaultvärdet ska vara lika med startplanets sista z-koordinat
+		prevGroundLane = 0;		// -1 = vänster lane, 0 = mitten, 1 = höger lane
+		
+	var	obstaclePosZ =500;
+		
+	var groundTexture = new THREE.ImageUtils.loadTexture( 'images/checkerboard.jpg' );
+		groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping; 
+		groundTexture.repeat.set( 0.5, 2.0 );
+	var groundMaterial = new THREE.MeshLambertMaterial( { color: 0x444444, map: groundTexture, side: THREE.DoubleSide } );
+	var groundGeometry;
+	var obstacleTexture = new THREE.ImageUtils.loadTexture( 'texture/motherboard.jpg' );
+	var obstacleMaterial = new THREE.MeshLambertMaterial( { color: 0x444444, map: obstacleTexture, side: THREE.DoubleSide } );
+	
+	var obstacleGeometry;
 
 	init();
 	animate();
@@ -63,7 +91,7 @@ $(window).load(function() {
 
 		camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
 
-		camera.position.set(0,320,900);
+		camera.position.set(0,400,1200);
 		camera.lookAt(scene.position);
 		lookatpoint = new THREE.Object3D();
 		
@@ -87,9 +115,9 @@ $(window).load(function() {
 		THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
 				
 		// FLOOR
-		var floorTexture = new THREE.ImageUtils.loadTexture( 'images/checkerboard.jpg' );
+		var floorTexture = new THREE.ImageUtils.loadTexture( 'texture/motherboard.jpg' );
 		floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
-		floorTexture.repeat.set( 1.5, 10 );
+		floorTexture.repeat.set( 1, 1 );
 		var floorMaterial = new THREE.MeshLambertMaterial( { color: 0x444444, map: floorTexture, side: THREE.DoubleSide } );
 		var floorGeometry = new THREE.PlaneGeometry(300, 2000, 10, 10);
 		var floor = new Physijs.BoxMesh(floorGeometry, floorMaterial);
@@ -99,10 +127,10 @@ $(window).load(function() {
 	
 		
 		// SKYBOX/FOG
-		var skyBoxGeometry  = new THREE.CubeGeometry( 4000, 4000, 4000 );
-		var skyBoxMaterial  = new THREE.MeshLambertMaterial( {map:THREE.ImageUtils.loadTexture('texture/sky.jpg'), side: THREE.BackSide } );
+		var skyBoxGeometry  = new THREE.CubeGeometry( 20000, 8000, 30000 );
+		var skyBoxMaterial  = new THREE.MeshLambertMaterial( {map:THREE.ImageUtils.loadTexture('texture/space.jpg'), side: THREE.BackSide } );
 		var skyBox 			= new THREE.Mesh( skyBoxGeometry, skyBoxMaterial );
-		skyBox.position.z = -1500;
+		skyBox.position.y = 1500;
 	    
 	    sphere = new Physijs.SphereMesh(new THREE.SphereGeometry(100, 3200), floorMaterial, 0.2);
 		sphere.position.y = 100;
@@ -125,9 +153,9 @@ $(window).load(function() {
 		//////////////////////
 		/// Carlbaum edits ///
 		//////////////////////
-
+	
 		//kuben som styr fysiken
-		cube = new Physijs.BoxMesh(new THREE.CubeGeometry(200,180,180), floorMaterial, 0.9);
+		cube = new Physijs.BoxMesh(new THREE.CubeGeometry(cubeX,cubeY,cubeZ), floorMaterial, 0.9);
 		cube.position.y = 80;
 
 		scene.setGravity(new THREE.Vector3( 0, -1800, 0 ));
@@ -232,6 +260,8 @@ $(window).load(function() {
 		} );
 */
 		//för modell
+
+		collideableMeshList = [];
 		
 		ship.visible = true;
 		rightWing.visible = true;
@@ -239,7 +269,14 @@ $(window).load(function() {
 		cube.visible = false;
 
 		//lägg till objekt i scenen/gruppen etc
+		var i;
+		for (i = 0; i < 10 ; i++) {
+			generateGroundSegment();
+		}
 
+		cube.add(skyBox);
+		camera.add(skyBox);
+		//scene.add(skyBox);
 		scene.add(camera);
 		//cube.add(camera);
 
@@ -253,7 +290,9 @@ $(window).load(function() {
 		ship.add( lightFront );
 		ship.add( lightRear );	
 		ship.add( engine.particleMesh );
-		//skyBox.add(cube);
+
+		
+
 
 		group.add(lightMain);
 		cube.add(group);
@@ -263,8 +302,8 @@ $(window).load(function() {
 
 	function animate() 
 	{
-	    var requestId = requestAnimationFrame( animate );
 
+	    var requestId = requestAnimationFrame( animate );
 	    // för att den endast ska åka i sidled 
 	    cube.lookAt(new THREE.Vector3( 0, 0, 1500 ) );
 	    
@@ -278,10 +317,9 @@ $(window).load(function() {
 		checkRotation();
 
 		// här dör man
-		if(cube.position.y < -100)
+		if(cube.position.y < -200)
 			endGame(requestId);
-		
-
+	
 		scene.simulate();
 	}
 
@@ -313,24 +351,45 @@ $(window).load(function() {
 
 	function update()
 	{	
+
 		// för att styra skeppet
 		shipControls();
 		checkCoinCollision();
 
 		//ger sekunder sen senaste 
 		dt = clock.getDelta();
+
 		engine.update( dt * 0.8 );	//uppdatera particles
 
 		//generera ett vägsegment 
 		shipDistZ = cube.position.z;
 
 		if ( shipDistZ-shipDistStart <= -500 ) {
-			scene.add( generateGroundSegment() );
+			generateGroundSegment();
 			shipDistStart = cube.position.z;
 		}
 
+		shipCollideWithObstacle();
 	}
 
+	function shipCollideWithObstacle(){
+
+		for (var vertexIndex = 0; vertexIndex < cube.geometry.vertices.length; vertexIndex++)
+		{       
+		    var localVertex = cube.geometry.vertices[vertexIndex].clone();
+		    var globalVertex = localVertex.applyMatrix4(cube.matrix);
+		    var directionVector = globalVertex.sub( cube.position );
+
+		    var ray = new THREE.Raycaster( cube.position, directionVector.clone().normalize() );
+		    var collisionResults = ray.intersectObjects( collideableMeshList );
+
+		    //Krock!!
+		    if ( collisionResults.length > 0 && collisionResults[0].distance < directionVector.length() ) 
+		    {
+		        console.log("hit");
+		    }
+		}
+	}
 
 
 	function shipControls(){
@@ -338,28 +397,14 @@ $(window).load(function() {
 		var jumpvec = new THREE.Vector3( 0, 100, 0 );
 		var rightvec = new THREE.Vector3( 20, 0, 0 );
 		var leftvec = new THREE.Vector3( -20, 0, 0 );
-		var toscreenvec = new THREE.Vector3( 0, 0, 20 );
-		var awayscreenvec = new THREE.Vector3( 0, 0, -20);
+		var toscreenvec = new THREE.Vector3( 0, 0, 40 );
+		var awayscreenvec = new THREE.Vector3( 0, 0, -30);
 
-		//the sphere control
-	/*
-		if ( keyboard.pressed("left") ) {
-			sphere.applyCentralImpulse(leftvec);
-			console.log("hej");
-		}
+		//skeppets fart
+		if ( keyboard.pressed("W") && cube.getLinearVelocity().z > -2000 ) {
 
-		if ( keyboard.pressed("right") ) 
-			sphere.applyCentralImpulse(rightvec);
+			cube.applyCentralImpulse(awayscreenvec);			
 
-		if ( keyboard.pressed("down") ) 
-			sphere.applyCentralImpulse(toscreenvec);
-			
-		if ( keyboard.pressed("up") ) 
-			sphere.applyCentralImpulse(awayscreenvec);
-	*/
-
-		if ( keyboard.pressed("W") ) {
-			cube.applyCentralImpulse(awayscreenvec);
 			engine.positionStyle = Type.SPHERE;
 		}
 
@@ -367,7 +412,6 @@ $(window).load(function() {
 		else
 			engine.positionStyle = Type.CUBE;
 		
-
 		if ( keyboard.pressed("S") ) 
 			cube.applyCentralImpulse(toscreenvec);
 
@@ -431,7 +475,6 @@ $(window).load(function() {
 
 				ship.position.y = jumpOrdive * jumpAmp * Math.sin( 1 * PI* jumpTime) + hoverDist;
 
-
 				// att göra: minska kubens höjd vid dyk
 				if(jumpOrdive < 0){
 					ship.rotation.x = -jumpOrdive * PI/16 *Math.sin( 2 * PI *jumpTime);
@@ -484,6 +527,7 @@ $(window).load(function() {
 	}	
 
 
+
 	//ground generating function
 	//variables
 	var laneWidth = 300,		//bredd på varje vägfil
@@ -496,7 +540,7 @@ $(window).load(function() {
 		
 	var	obstaclePosZ =500;
 
-	var coinRadiusTop = 50,
+	var coinRadiusTop = 50, 
 		coinRadiusBottom = 50;   
 		
 	var groundTexture = new THREE.ImageUtils.loadTexture( 'images/checkerboard.jpg' );
@@ -509,45 +553,71 @@ $(window).load(function() {
 	var count = 0;
 
 	
+
+	//ground generating function	
+
 	function generateGroundSegment() //generates a ground segment
 	{
 		//console.log("generera mark");
 		var segLength = Math.floor((Math.random()*1000)+minSegmentLength);			//den faktiska längden på det segment som genereras
 		groundGeometry = new THREE.PlaneGeometry(laneWidth, segLength); 	//antalet segment är 1 default, tog bort 2 sista parametrarna..Lagg?
-		var ground = new Physijs.BoxMesh(groundGeometry, groundMaterial);	
 
-		obstacleGeometry = new THREE.PlaneGeometry(laneWidth, hoverDist*2);
-		var obstacle = new Physijs.BoxMesh(obstacleGeometry, groundMaterial); //hinder i banan, genereras på planet	
+	
+
+	
 
 		coinGeometry = new THREE.CylinderGeometry( coinRadiusTop, coinRadiusTop, 10, 32 );
 		var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
 		coin = new THREE.Mesh( coinGeometry, material );
 		
+
+		obstacleGeometry = new THREE.PlaneGeometry(laneWidth, hoverDist,20);
+		var ground = new Physijs.BoxMesh(groundGeometry, groundMaterial);	
+		var obstacle = new Physijs.BoxMesh(obstacleGeometry, obstacleMaterial); //hinder i banan, genereras på planet	
+
 		
-		var newGroundLane = Math.floor((Math.random()*3)-1); //randomgrejen genererar -1, 0 eller 1 ( alltså vilken lane som ground ska hamna i)
+		/*RENSA ARRAY PÅ ONÖDIG DATA?? **/
+		//if(collidebleMesh.length > 20)
+		//	collidebleMesh = [];
+
+		collideableMeshList.push(obstacle); // lägg till nytt objekt i array
+
+		var newGroundLane = Math.floor((Math.random()*5)-1); //randomgrejen genererar -1, 0 eller 1 ( alltså vilken lane som ground ska hamna i)
+		if(newGroundLane == 3 || newGroundLane == 2) {
+			newGroundLane = 0;
+		}
+
 		ground.rotation.x = PI / 2;
 		coin.rotation.x = PI / 2;
 
 		if( newGroundLane == prevGroundLane ) {
 			ground.position.z = -groundPosZ - segLength/2;
+
 			obstacle.position.z = -groundPosZ - segLength/2;
 			coin.position.z = -groundPosZ - segLength/2;
+
+			obstacle.position.z = ground.position.z;
+
 			groundPosZ += segLength;			// öka på för att nästa segment ska hamna på korrekt plats
-
-
 		}
 		else {
 			ground.position.z = -groundPosZ - segLength/2 + laneOverlap;
-			coin.position.z =-groundPosZ - segLength/2 + laneOverlap;
+
+			coin.position.z =-groundPosZ - segLength/3 + laneOverlap;
 			groundPosZ += segLength -600 ;			// öka på för att nästa segment ska hamna på korrekt plats
+
+			obstacle.position.z = ground.position.z;
+			groundPosZ += (segLength-laneOverlap) ;			// öka på för att nästa segment ska hamna på korrekt plats
+
 		}
 
 		ground.position.x = laneWidth * newGroundLane;
-		prevGroundLane = newGroundLane;	
-
-		obstacle.position.y = hoverDist/2;
+		ground.position.y = groundPosY;	
+		
 		obstacle.position.x = laneWidth * newGroundLane;
+		obstacle.position.y = hoverDist/2;
 		scene.add(obstacle)	;
+
 
 		coin.position.y = hoverDist*2;
 		coin.position.x = laneWidth * newGroundLane;
@@ -569,9 +639,26 @@ $(window).load(function() {
 		count++;
 		
 		
-		return ground;
-	}	
+	
 
+		prevGroundLane = newGroundLane;
+
+		//För att ibland kunna välja väg, höger eller vänster
+		//Lite fel nu.. blir överlappning ibland.. orkar inte fixa atm
+		if(Math.abs(newGroundLane)==1 && Math.floor(Math.random()*5) == 1) {
+			var ground2 = new Physijs.BoxMesh(groundGeometry, groundMaterial);
+			ground2.rotation.x = ground.rotation.x;
+			ground2.position.x = -1*ground.position.x;
+			ground2.position.y = groundPosY;
+			ground2.position.z = ground.position.z;
+			ground2.name = 'ground';
+			scene.add(ground2);
+		}
+		ground.name = 'ground';
+		scene.add(ground);
+
+	}	
+	//Orre edits
 	function checkCoinCollision()
 	{
 		if(cube.position.z < -2000)
@@ -584,11 +671,12 @@ $(window).load(function() {
 				var coinY = coins[indexCoins].position.y;
 				var coinZ = coins[indexCoins].position.z;
 
+				//Jämför kubens postion, det fungerade inte att jämföra skeppets
 				var shipX = cube.position.x,
 					shipY = cube.position.y,
 					shipZ = cube.position.z;
 
-				var cubeY = ship.position.y;
+				
 					
 
 				//console.log(coinX);
@@ -598,11 +686,11 @@ $(window).load(function() {
 				//console.log(cubeY + shipY);
 				//console.log(coinY);
 
-				if(	coinX >= (shipX - shipWidth) && coinY <= (cubeY + shipY + shipHeight) &&
-					coinX <= (shipX + shipWidth) && coinY >=(cubeY + shipY - shipHeight) &&
+				if(	coinX >= (shipX - cubeX) && coinY <= (shipY + cubeY) &&
+					coinX <= (shipX + cubeX) && coinY >=(shipY - cubeY) &&
 					shipZ < (coinZ + 200) && shipZ > (coinZ - 200))
 				{
-					
+					//kollar om coinet är true eller false, sedan sätter till true eftersom det är träffat och tar bort det
 					if(!Boolean(checkIfCollect[indexCoins]))
 					{
 					
@@ -611,7 +699,7 @@ $(window).load(function() {
 						indexCoins++;
 					}
 
-						
+					//Byt till nästa coin att jämföra en collision med	
 				}else if(shipZ < (coinZ - 300))
 				{
 					

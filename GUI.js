@@ -5,9 +5,9 @@ function initialize_GUI(){
     // för loading screen
     $('#loading').hide();
     $('#WebGL-container').show();
-    $('#stopwatch').css('margin-left', window.innerWidth*0.44);
-}
+    $('#stopwatch').css('margin-left', window.innerWidth*0.43);
 
+}
 
 function endGame(id){
 
@@ -54,7 +54,7 @@ function formatTime(time) {
     if(gameOver)
 		return $('#timer span').html();
 
-    return (min > 0 ? pad(min, 2) : "00") + ":" + pad(sec, 2) + ":" + hundredths;
+    return (min > 0 ? pad(min, 2) : "0") + "'" + pad(sec, 2) + "''" + hundredths;
 
 }
 
