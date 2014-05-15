@@ -28,15 +28,29 @@
 <script type="text/javascript" src="GUI.js"></script>
 <script type="text/javascript" src="script.js"></script>
 
-<!-- GUI for experimenting with values -->		
-<!--script type="text/javascript" src="js/DAT.GUI.min.js"></script-->
+<link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+  <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
 
-<!-- ------------------------------------------------------------ -->
+  <style>
+  .ui-progressbar {
+    position: relative;
+  }
+  .progress-label {
+    position: absolute;
+    left: 50%;
+    top: 4px;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 #fff;
+  }
+  </style>
+  <script>
+
+  </script>
+</head>
 <body>
-
-	<div id="loading">
-		<h1>Loading...</h1>
-	</div>
+ 
+<div id="progressbar"><div class="progress-label">Loading...</div></div>
 
 	<!--visar spelet-->
 	<div id="WebGL-container">

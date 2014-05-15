@@ -3,10 +3,11 @@ var gameOver = false;
 
 function initialize_GUI(){
     // för loading screen
-    $('#loading').hide();
+    $('#progressbar').hide();
     $('#WebGL-container').show();
     $('#stopwatch').css('margin-left', window.innerWidth*0.43);
     $('#coins').css('margin-left', window.innerWidth*0.2);
+    
 
 }
 
@@ -84,3 +85,33 @@ var clock = new (function() {
     };
     	$(init);
 });
+
+//LOADING function
+  $(function() {
+    var progressbar = $( "#progressbar" ),
+      progressLabel = $( ".progress-label" );
+ 
+    progressbar.progressbar({
+      value: false,
+      change: function() {
+        progressLabel.text( progressbar.progressbar( "value" ) + "%" );
+      },
+      complete: function() {
+        progressLabel.text( "Complete!" );
+        
+
+      }
+    });
+ 
+    function progress() {
+      var val = progressbar.progressbar( "value" ) || 20;
+ 
+      progressbar.progressbar( "value", val + 15 );
+ 
+      if ( val < 99 ) {
+        setTimeout( progress, 100 );
+      }
+    }
+ 
+    setTimeout( progress, 0.01 );
+  });
