@@ -9,7 +9,7 @@ function initialize_GUI(){
 
 }
 
-function endGame(id){
+function endGame(id, totalCoins){
 
         // stop loop
         window.cancelAnimationFrame(id);
@@ -19,6 +19,7 @@ function endGame(id){
 
         // show results
         $('#result #time').html(time);
+        $('#result #totalcoins').html(totalCoins);
 
         $('#gameOverScreen').css('height', window.innerHeight/2);
         $('#gameOverScreen').css('width', window.innerWidth/2);

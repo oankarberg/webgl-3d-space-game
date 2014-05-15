@@ -39,6 +39,9 @@ $(window).load(function() {
 	var shipDistZ = 0,
 		shipDistStart = 0;
 
+	//COINS per spel
+	var TOTALCOINS = 0;
+
 	var PI = Math.PI;
 
 	//ground and obstacle variables
@@ -318,7 +321,7 @@ $(window).load(function() {
 
 		// här dör man
 		if(cube.position.y < -200)
-			endGame(requestId);
+			endGame(requestId, TOTALCOINS);
 	
 		scene.simulate();
 	}
@@ -693,10 +696,11 @@ $(window).load(function() {
 					//kollar om coinet är true eller false, sedan sätter till true eftersom det är träffat och tar bort det
 					if(!Boolean(checkIfCollect[indexCoins]))
 					{
-					
 						checkIfCollect[indexCoins] = true;
-						scene.remove(coins[indexCoins]);
+						TOTALCOINS++;
+						//scene.remove(coins[indexCoins]);
 						indexCoins++;
+						
 					}
 
 					//Byt till nästa coin att jämföra en collision med	
