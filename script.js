@@ -20,6 +20,14 @@ $(window).load(function() {
 	var jumpOrdive; //Dyka eller hoppa.
 	var hoverDist; //hur högt över banan som skeppet flyger
 	var shipSpeed;
+
+	//SKEPPETS GEOMETRI
+	var shipLength 	= 200, shipHeight = 60,	shipWidth = 60,
+			wingWidth	= 150, wingHeight = 20, wingDepth = 100;
+
+	var coins = []; //array med coins
+	var checkIfCollect = []; //satt till false i generateGroundSegment
+	var indexCoins = 0;
 	
 	var shipDistZ = 0,
 		shipDistStart = 0;
@@ -123,9 +131,8 @@ $(window).load(function() {
 		cube.position.y = 80;
 
 		scene.setGravity(new THREE.Vector3( 0, -1800, 0 ));
-		//skeppets geometri
-		var shipLength 	= 200, shipHeight = 60,	shipWidth = 60,
-			wingWidth	= 150, wingHeight = 20, wingDepth = 100;
+
+
 			
 		var shipGeom = new THREE.CubeGeometry(	shipWidth,
 												shipHeight,
@@ -229,7 +236,7 @@ $(window).load(function() {
 		ship.visible = true;
 		rightWing.visible = true;
 		leftWing.visible = true;
-		cube.visible = true;
+		cube.visible = false;
 
 		//lägg till objekt i scenen/gruppen etc
 
@@ -308,6 +315,7 @@ $(window).load(function() {
 	{	
 		// för att styra skeppet
 		shipControls();
+		checkCoinCollision();
 
 		//ger sekunder sen senaste 
 		dt = clock.getDelta();
@@ -324,9 +332,10 @@ $(window).load(function() {
 	}
 
 
+
 	function shipControls(){
 
-		var jumpvec = new THREE.Vector3( 0, 700, 0 );
+		var jumpvec = new THREE.Vector3( 0, 100, 0 );
 		var rightvec = new THREE.Vector3( 20, 0, 0 );
 		var leftvec = new THREE.Vector3( -20, 0, 0 );
 		var toscreenvec = new THREE.Vector3( 0, 0, 20 );
@@ -486,6 +495,9 @@ $(window).load(function() {
 		prevGroundLane = 0;		// -1 = vänster lane, 0 = mitten, 1 = höger lane
 		
 	var	obstaclePosZ =500;
+
+	var coinRadiusTop = 50,
+		coinRadiusBottom = 50;   
 		
 	var groundTexture = new THREE.ImageUtils.loadTexture( 'images/checkerboard.jpg' );
 		groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping; 
@@ -494,28 +506,39 @@ $(window).load(function() {
 	var groundGeometry;
 	var obstacleGeometry;
 
+	var count = 0;
+
 	
 	function generateGroundSegment() //generates a ground segment
 	{
 		//console.log("generera mark");
 		var segLength = Math.floor((Math.random()*1000)+minSegmentLength);			//den faktiska längden på det segment som genereras
 		groundGeometry = new THREE.PlaneGeometry(laneWidth, segLength); 	//antalet segment är 1 default, tog bort 2 sista parametrarna..Lagg?
-		obstacleGeometry = new THREE.PlaneGeometry(laneWidth, hoverDist);
 		var ground = new Physijs.BoxMesh(groundGeometry, groundMaterial);	
+
+		obstacleGeometry = new THREE.PlaneGeometry(laneWidth, hoverDist*2);
 		var obstacle = new Physijs.BoxMesh(obstacleGeometry, groundMaterial); //hinder i banan, genereras på planet	
+
+		coinGeometry = new THREE.CylinderGeometry( coinRadiusTop, coinRadiusTop, 10, 32 );
+		var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+		coin = new THREE.Mesh( coinGeometry, material );
+		
 		
 		var newGroundLane = Math.floor((Math.random()*3)-1); //randomgrejen genererar -1, 0 eller 1 ( alltså vilken lane som ground ska hamna i)
 		ground.rotation.x = PI / 2;
+		coin.rotation.x = PI / 2;
 
 		if( newGroundLane == prevGroundLane ) {
 			ground.position.z = -groundPosZ - segLength/2;
 			obstacle.position.z = -groundPosZ - segLength/2;
+			coin.position.z = -groundPosZ - segLength/2;
 			groundPosZ += segLength;			// öka på för att nästa segment ska hamna på korrekt plats
 
 
 		}
 		else {
 			ground.position.z = -groundPosZ - segLength/2 + laneOverlap;
+			coin.position.z =-groundPosZ - segLength/2 + laneOverlap;
 			groundPosZ += segLength -600 ;			// öka på för att nästa segment ska hamna på korrekt plats
 		}
 
@@ -525,9 +548,88 @@ $(window).load(function() {
 		obstacle.position.y = hoverDist/2;
 		obstacle.position.x = laneWidth * newGroundLane;
 		scene.add(obstacle)	;
+
+		coin.position.y = hoverDist*2;
+		coin.position.x = laneWidth * newGroundLane;
+		
+
+		
+			if((count-2) % 5 == 0)
+			{
+				scene.add(coin);
+				var temp = new THREE.Vector3( coin.position.x, coin.position.y, coin.position.z );
+				coins.push(coin);
+				checkIfCollect.push(false);
+				console.log("X = " + coin.position.x);
+				console.log("Y = " + coin.position.y);
+				console.log("Z = " + coin.position.z);
+			}
+
+				
+		count++;
+		
 		
 		return ground;
 	}	
+
+	function checkCoinCollision()
+	{
+		if(cube.position.z < -2000)
+		{
+			
+			if(coins[indexCoins])
+			{
+				
+				var coinX = coins[indexCoins].position.x;
+				var coinY = coins[indexCoins].position.y;
+				var coinZ = coins[indexCoins].position.z;
+
+				var shipX = cube.position.x,
+					shipY = cube.position.y,
+					shipZ = cube.position.z;
+
+				var cubeY = ship.position.y;
+					
+
+				//console.log(coinX);
+				//console.log(coinY);
+				//console.log(coinZ);
+				//console.log(coins[indexCoins].position.z);
+				//console.log(cubeY + shipY);
+				//console.log(coinY);
+
+				if(	coinX >= (shipX - shipWidth) && coinY <= (cubeY + shipY + shipHeight) &&
+					coinX <= (shipX + shipWidth) && coinY >=(cubeY + shipY - shipHeight) &&
+					shipZ < (coinZ + 200) && shipZ > (coinZ - 200))
+				{
+					
+					if(!Boolean(checkIfCollect[indexCoins]))
+					{
+					
+						checkIfCollect[indexCoins] = true;
+						scene.remove(coins[indexCoins]);
+						indexCoins++;
+					}
+
+						
+				}else if(shipZ < (coinZ - 300))
+				{
+					
+					indexCoins++;
+				}
+			}
+			
+			 
+			
+		}
+		
+
+	
+	}
+
+
+
+
 	///MÅSTE!!! MÅSTE lägga till removeGroundSegment() ( tror jag.. )
 	function removeGroundSegment() 
 	{
