@@ -574,7 +574,7 @@ $(window).load(function() {
 		coin = new THREE.Mesh( coinGeometry, material );
 		
 
-		obstacleGeometry = new THREE.PlaneGeometry(laneWidth, hoverDist,20);
+		obstacleGeometry = new THREE.PlaneGeometry(laneWidth, cubeY,20);
 		var ground = new Physijs.BoxMesh(groundGeometry, groundMaterial);	
 		var obstacle = new Physijs.BoxMesh(obstacleGeometry, obstacleMaterial); //hinder i banan, genereras på planet	
 
@@ -607,7 +607,7 @@ $(window).load(function() {
 			ground.position.z = -groundPosZ - segLength/2 + laneOverlap;
 
 			coin.position.z =-groundPosZ - segLength/3 + laneOverlap;
-			groundPosZ += segLength -600 ;			// öka på för att nästa segment ska hamna på korrekt plats
+			//groundPosZ += segLength -600 ;			// öka på för att nästa segment ska hamna på korrekt plats
 
 			obstacle.position.z = ground.position.z;
 			groundPosZ += (segLength-laneOverlap) ;			// öka på för att nästa segment ska hamna på korrekt plats
@@ -619,12 +619,16 @@ $(window).load(function() {
 		
 		obstacle.position.x = laneWidth * newGroundLane;
 		obstacle.position.y = hoverDist/2;
-		scene.add(obstacle)	;
+	
 
 
 		coin.position.y = hoverDist*2;
 		coin.position.x = laneWidth * newGroundLane;
-		
+			//inte så många obstacle
+			if(count % 5 == 0)
+			{
+					scene.add(obstacle)	;
+			}
 
 		
 			if((count-2) % 5 == 0)
@@ -655,7 +659,7 @@ $(window).load(function() {
 			ground2.position.y = groundPosY;
 			ground2.position.z = ground.position.z;
 			ground2.name = 'ground';
-			scene.add(ground2);
+		//	scene.add(ground2);
 		}
 		ground.name = 'ground';
 		scene.add(ground);
@@ -698,8 +702,9 @@ $(window).load(function() {
 					{
 						checkIfCollect[indexCoins] = true;
 						TOTALCOINS++;
-						//scene.remove(coins[indexCoins]);
 						indexCoins++;
+						scene.remove(coins[indexCoins-1]);
+						
 						
 					}
 
