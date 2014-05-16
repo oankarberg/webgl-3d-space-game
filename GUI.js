@@ -3,11 +3,10 @@ var gameOver = false;
 
 function initialize_GUI(){
     // för loading screen
-    $('#progressbar').hide();
+    $('#loading').hide();
     $('#WebGL-container').show();
     $('#stopwatch').css('margin-left', window.innerWidth*0.43);
     $('#coins').css('margin-left', window.innerWidth*0.2);
-    
 
 }
 
@@ -55,7 +54,7 @@ function formatTime(time) {
 
     // return span tag instead of current time 
     if(gameOver)
-		return $('#timer span').html();
+        return $('#timer span').html();
 
     return (min > 0 ? pad(min, 2) : "0") + "'" + pad(sec, 2) + "''" + hundredths;
 
@@ -83,35 +82,5 @@ var clock = new (function() {
         currentTime = 0;
         this.Timer.stop().once();
     };
-    	$(init);
+        $(init);
 });
-
-//LOADING function
-  $(function() {
-    var progressbar = $( "#progressbar" ),
-      progressLabel = $( ".progress-label" );
- 
-    progressbar.progressbar({
-      value: false,
-      change: function() {
-        progressLabel.text( progressbar.progressbar( "value" ) + "%" );
-      },
-      complete: function() {
-        progressLabel.text( "Complete!" );
-        
-
-      }
-    });
- 
-    function progress() {
-      var val = progressbar.progressbar( "value" ) || 20;
- 
-      progressbar.progressbar( "value", val + 15 );
- 
-      if ( val < 99 ) {
-        setTimeout( progress, 100 );
-      }
-    }
- 
-    setTimeout( progress, 0.01 );
-  });

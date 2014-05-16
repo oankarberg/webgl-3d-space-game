@@ -1,0 +1,22 @@
+newmtl blinn1SG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd test1.tif
+Ni 1.00
+Ks 0.50 0.50 0.50
+newmtl lambert2SG
+illum 4
+Kd 0.29 0.29 0.29
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+Ni 1.00
+newmtl phong1SG
+illum 4
+Kd 0.61 0.73 0.79
+Ka 0.00 0.00 0.00
+Tf 0.81 0.81 0.81
+Ni 1.00
+Ks 0.79 0.79 0.79
+Ns 18.00
