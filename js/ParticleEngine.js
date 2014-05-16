@@ -149,8 +149,6 @@ function ParticleEngine()
 	/////////////////////////
 	
 	this.positionStyle = Type.CUBE;	
-	console.log(this)
-	console.log("TITTA Hherere ^^")	
 	this.positionBase   = new THREE.Vector3();
 	// cube shape data
 	this.positionSpread = new THREE.Vector3();

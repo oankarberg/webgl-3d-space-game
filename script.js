@@ -6,7 +6,7 @@ $(window).load(function() {
 	initialize_GUI();
 
 	// standard global variables
-	var floorList, collideableMeshList, 
+	var floor, floorList, collideableMeshList, 
 		pos1, pos2, cube2, loader, engine, 
 		container, scene, camera, renderer, 
 		group, ship, cube, sphere, dt, lookatpoint,
@@ -61,13 +61,13 @@ $(window).load(function() {
 	var coinRadiusTop = 50, 
 		coinRadiusBottom = 50; 
 
-	var groundTexture = new THREE.ImageUtils.loadTexture( 'images/checkerboard.jpg' );
+	var groundTexture = new THREE.ImageUtils.loadTexture( 'texture/gradient6.png' );
 		groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping; 
-		groundTexture.repeat.set( 0.5, 2.0 );
-	var groundMaterial = new THREE.MeshLambertMaterial( { color: 0x444444, map: groundTexture, side: THREE.DoubleSide } );
+		//groundTexture.repeat.set( 0.5, 2.0 );
+	var groundMaterial = new THREE.MeshLambertMaterial( { color: 0xFFFFFF, map: groundTexture, side: THREE.DoubleSide, transparent: true, opacity:0.5 } );
 	var groundGeometry;
 
-	var obstacleTexture = new THREE.ImageUtils.loadTexture( 'texture/motherboard.jpg' );
+	var obstacleTexture = new THREE.ImageUtils.loadTexture( 'texture/crate.jpg' );
 	var obstacleMaterial = new THREE.MeshLambertMaterial( { color: 0x444444, map: obstacleTexture, side: THREE.DoubleSide } );
 	var obstacleGeometry;
 	
@@ -132,10 +132,13 @@ $(window).load(function() {
 		floorTexture.repeat.set( 1, 1 );
 		var floorMaterial = new THREE.MeshLambertMaterial( { color: 0x444444, map: floorTexture, side: THREE.DoubleSide } );
 		var floorGeometry = new THREE.PlaneGeometry(300, 2000, 10, 10);
-		var floor = new Physijs.BoxMesh(floorGeometry, floorMaterial);
+		 floor = new Physijs.BoxMesh(floorGeometry, groundMaterial);
 		floor.position.y = -10.5;
 		floor.position.z = -950;
 		floor.rotation.x = PI / 2;
+		floor.id = "startGround";
+
+		floorList = [floor];
 
 
 
@@ -224,7 +227,7 @@ $(window).load(function() {
 			lightFront	= new THREE.SpotLight(0x00ff00),				//framlykta
 			lightRear	= new THREE.PointLight(0xff2200, 10.0, 150.0);	//(color, intensity, distance) tanken är att simulera ljus från partiklarna(elden) 
 
-		lightMain.position.set( 0, 2000, 0);
+		lightMain.position.set( 0, 2500, 0);
 		lightMain.target = group;
 		lightMain.castShadow = true;
 		//lightMain.shadowDarkness = 0.5;
@@ -236,13 +239,15 @@ $(window).load(function() {
 		lightMain.shadowCameraFov = 30;	  //FieldOfView? ändrar i princip skärpan på skuggan, högre = sämre men mer 'falloff' 	
 
 		var aim = new THREE.Object3D();	
-		aim.position.z = -200;
+		aim.position.y = -100;
+		aim.position.z = -2000;
 		lightFront.angle = PI/9;
 		lightFront.position.set( 0, 0, -shipLength/2-15);
 		lightFront.target = aim;
-		lightFront.exponent = 0;
+		//lightFront.exponent = 10;
+		lightFront.distance = 2000;
 		//lightFront.target = new THREE.Vector3(0,0,ship.position.z -200);
-		//lightFront.castShadow = true; 
+		lightFront.castShadow = true; 
 		//lightFront.intensity = 1.0;
 		/*lightFront.shadowMapWidth = 1024; 
 		lightFront.shadowMapHeight = 1024; 
@@ -263,7 +268,7 @@ $(window).load(function() {
 
 		//laddar in modell
 		loader = new THREE.OBJMTLLoader();
-		loader.load( 'objects/ship5.obj', 'objects/ship5.mtl', function ( object ) {
+		loader.load( 'objects/ship6.obj', 'objects/ship6.mtl', function ( object ) {
 			//Object is the car, adding car to the cube for physics
 			/*object.scale.set(0.6,0.6,0.6);
 			object.rotation.y = Math.PI;*/
@@ -278,7 +283,7 @@ $(window).load(function() {
 		//för modell
 
 		collideableMeshList = [];
-		floorList = [floor];
+
 		
 		/*rightWing.visible = true;
 		leftWing.visible = true;*/
@@ -313,7 +318,6 @@ $(window).load(function() {
 		group.add(lightMain);
 		cube.add(group);
 		cube.add(ship);
-
 	}
 
 	function animate() 
@@ -323,7 +327,9 @@ $(window).load(function() {
 	    // för att den endast ska åka i sidled 
 	    cube.lookAt(new THREE.Vector3( 0, 0, 1200 ) );
 
-	    camera.position.z = cube.position.z + 900;
+	    camera.position.x = cube.position.x*0.5;
+	    camera.position.z = cube.position.z + 1200;
+	    lookatpoint.position.x = cube.position.x*0.5;
 		lookatpoint.position.z = cube.position.z-1500;
 		camera.lookAt(lookatpoint.position);
 
@@ -390,8 +396,6 @@ $(window).load(function() {
 
 	function shipHover(){
 
-		
-
 /*
 		for (var vertexIndex = 0; vertexIndex < cube.geometry.vertices.length; vertexIndex++)
 		{       
@@ -457,7 +461,7 @@ $(window).load(function() {
 		var awayscreenvec = new THREE.Vector3( 0, 0, -30);
 
 		//skeppets fart
-		if ( keyboard.pressed("W") && cube.getLinearVelocity().z > -2000 ) {
+		if ( keyboard.pressed("W") && cube.getLinearVelocity().z > -3000 ) {
 
 			cube.applyCentralImpulse(awayscreenvec);			
 
@@ -585,9 +589,10 @@ $(window).load(function() {
 	//ground generating function	
 	function generateGroundSegment() //generates a ground segment
 	{
+		generateGap();
 		//console.log("generera mark");
 		var segLength = Math.floor((Math.random()*1000)+minSegmentLength);			//den faktiska längden på det segment som genereras
-		groundGeometry = new THREE.PlaneGeometry(laneWidth, segLength); 	//antalet segment är 1 default, tog bort 2 sista parametrarna..Lagg?
+		groundGeometry = new THREE.PlaneGeometry(laneWidth, segLength,2,6); 	//antalet segment är 1 default, tog bort 2 sista parametrarna..Lagg?
 
 
 		coinGeometry = new THREE.CylinderGeometry( coinRadiusTop, coinRadiusTop, 10, 32 );
@@ -595,7 +600,7 @@ $(window).load(function() {
 		coin = new THREE.Mesh( coinGeometry, material );
 
 
-		obstacleGeometry = new THREE.PlaneGeometry(laneWidth, cubeY,20);
+		obstacleGeometry = new THREE.PlaneGeometry(laneWidth, 250,20);
 		var ground = new Physijs.BoxMesh(groundGeometry, groundMaterial);	
 		var obstacle = new Physijs.BoxMesh(obstacleGeometry, obstacleMaterial); //hinder i banan, genereras på planet	
 
@@ -675,13 +680,24 @@ $(window).load(function() {
 			ground2.position.y = groundPosY;
 			ground2.position.z = ground.position.z;
 			ground2.name = 'ground';
-		//	floorList.push(ground2);
-		//	scene.add(ground2);
+			floorList.push(ground2);
+			scene.add(ground2);
 		}
 		ground.name = 'ground';
 		scene.add(ground);
 
 	}	
+
+	function generateGap(){
+		if(Math.floor(Math.random()*5) == 1)
+			groundPosZ += 1500;
+	}
+
+	///MÅSTE!!! MÅSTE lägga till removeGroundSegment() ( tror jag.. )
+	function removeGroundSegment() 
+	{
+	}
+
 	//Orre edits
 	function checkCoinCollision()
 	{
@@ -732,14 +748,7 @@ $(window).load(function() {
 			}
 		}
 	}
+	//
 
-	///MÅSTE!!! MÅSTE lägga till removeGroundSegment() ( tror jag.. )
-	function removeGroundSegment() 
-	{
-		/* 
-			typ hitta alla groundSegments med z-värden större än (skeppets z-värde + offset(typ 400))
-			och deleta dem.. annars kanske dem tar upp en massa onödigt minne
-		*/
-	}
 
 });
