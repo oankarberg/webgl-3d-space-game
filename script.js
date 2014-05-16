@@ -35,7 +35,6 @@ $(window).load(function() {
 		cubeY = 40,
 		cubeZ = 180;
 
-
 	var coins = []; //array med coins
 	var checkIfCollect = []; //satt till false i generateGroundSegment
 	var indexCoins = 0;
@@ -104,7 +103,7 @@ $(window).load(function() {
 
 		camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
 
-		camera.position.set(0,400,1200);
+		camera.position.set(0,500,800);
 		camera.lookAt(scene.position);
 		lookatpoint = new THREE.Object3D();
 
@@ -206,8 +205,8 @@ $(window).load(function() {
 		rightWing.rotation.y = -PI * 1/3.2;*/
 
 		//föremåls skugghantering
-		ship.castShadow = true;	
-		ship.receiveShadow = true;
+		/*ship.castShadow = true;	
+		ship.receiveShadow = true;*/
 
 		/*leftWing.castShadow = true;
 		leftWing.receiveShadow = true;
@@ -269,6 +268,8 @@ $(window).load(function() {
 			/*object.scale.set(0.6,0.6,0.6);
 			object.rotation.y = Math.PI;*/
 			object.position.y = -cubeY;
+			object.castShadow = true;	
+			object.receiveShadow = true;
 
 			ship.add(object);
 
@@ -282,7 +283,7 @@ $(window).load(function() {
 		/*rightWing.visible = true;
 		leftWing.visible = true;*/
 		ship.visible = false;
-		cube.visible = true;
+		cube.visible = false;
 
 		//lägg till objekt i scenen/gruppen etc
 		var i;
@@ -320,10 +321,10 @@ $(window).load(function() {
 
 	    var requestId = requestAnimationFrame( animate );
 	    // för att den endast ska åka i sidled 
-	    cube.lookAt(new THREE.Vector3( 0, 0, 1500 ) );
+	    cube.lookAt(new THREE.Vector3( 0, 0, 1200 ) );
 
 	    camera.position.z = cube.position.z + 900;
-		lookatpoint.position.z = cube.position.z;
+		lookatpoint.position.z = cube.position.z-1500;
 		camera.lookAt(lookatpoint.position);
 
 		render();		
@@ -389,16 +390,7 @@ $(window).load(function() {
 
 	function shipHover(){
 
-		var value = 200;
-		value -= cube.position.y+1;
-		value /= 100;
-		var cubeYDir;
-		if(cube.getLinearVelocity().y > 0) 
-			cubeYDir = 0.5;
-		else
-			cubeYDir = 2;
-
-		var jumpvec = new THREE.Vector3( 0,-gravity*value*cubeYDir, 0 );
+		
 
 /*
 		for (var vertexIndex = 0; vertexIndex < cube.geometry.vertices.length; vertexIndex++)
@@ -411,7 +403,7 @@ $(window).load(function() {
 		    console.log(directionVector.getComponent(1));
 		    console.log(directionVector.getComponent(2));*/
 
-		    var newCube = new THREE.Vector3(cube.position.x, cube.position.y-cubeY/2, cube.position.z);
+		    var newCube = new THREE.Vector3(cube.position.x, cube.position.y+1-cubeY/2, cube.position.z);
 
 		    var ray = new THREE.Raycaster( newCube, new THREE.Vector3(0,-1,0), 0, 210);
 		    var collisionResults = ray.intersectObjects( floorList );
@@ -419,8 +411,18 @@ $(window).load(function() {
 		    //Krock!!
 		    if ( collisionResults.length > 0 && collisionResults[0].distance < 200 ) 
 		    {
-				  //var jumpvec = new THREE.Vector3( 0, 150 - collisionResults[0].distance, 0 );
-				  cube.applyCentralForce(jumpvec);
+		    	var value = 200;
+				value -= cube.position.y+1;
+					value /= 100;
+				var cubeYDir;
+				if(cube.getLinearVelocity().y > 0) 
+					cubeYDir = 0.5;
+				else
+					cubeYDir = 2;
+
+				var jumpvec = new THREE.Vector3( 0,-gravity*value*cubeYDir, 0 );
+				//var jumpvec = new THREE.Vector3( 0, 150 - collisionResults[0].distance, 0 );
+				cube.applyCentralForce(jumpvec);
 		    }
 	//	}
 
