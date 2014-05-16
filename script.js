@@ -60,6 +60,7 @@ $(window).load(function() {
 
 	var coinRadiusTop = 50, 
 		coinRadiusBottom = 50; 
+	var coinTexture = new THREE.ImageUtils.loadTexture( 'texture/coinTexture.png' );
 
 	var groundTexture = new THREE.ImageUtils.loadTexture( 'texture/gradient6.png' );
 		groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping; 
@@ -67,9 +68,10 @@ $(window).load(function() {
 	var groundMaterial = new THREE.MeshLambertMaterial( { color: 0xFFFFFF, map: groundTexture, side: THREE.DoubleSide, transparent: true, opacity:0.5 } );
 	var groundGeometry;
 
-	var obstacleTexture = new THREE.ImageUtils.loadTexture( 'texture/crate.jpg' );
-	var obstacleMaterial = new THREE.MeshLambertMaterial( { color: 0x444444, map: obstacleTexture, side: THREE.DoubleSide } );
-	var obstacleGeometry;
+	var obstacleTexture = new THREE.ImageUtils.loadTexture( 'texture/WarningSign2.jpg' );
+	var obstacleMaterial = new THREE.MeshLambertMaterial( { color: 0xffffff, map: obstacleTexture, side: THREE.DoubleSide } );
+	var obstacleGeometry,
+		obstacleHeight = 250;
 	
 	var count = 0;
 	
@@ -343,6 +345,7 @@ $(window).load(function() {
 			endGame(requestId, TOTALCOINS);
 
 		scene.simulate();
+		animateCoin();
 	}
 
 	function checkRotation(){
@@ -596,11 +599,12 @@ $(window).load(function() {
 
 
 		coinGeometry = new THREE.CylinderGeometry( coinRadiusTop, coinRadiusTop, 10, 32 );
-		var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+		var material = new THREE.MeshBasicMaterial( {color: 0xffff00, map: coinTexture, side: THREE.BackSide} );
 		coin = new THREE.Mesh( coinGeometry, material );
+		coin.name='coin';
 
 
-		obstacleGeometry = new THREE.PlaneGeometry(laneWidth, 250,20);
+		obstacleGeometry = new THREE.PlaneGeometry(laneWidth, obstacleHeight,20);
 		var ground = new Physijs.BoxMesh(groundGeometry, groundMaterial);	
 		var obstacle = new Physijs.BoxMesh(obstacleGeometry, obstacleMaterial); //hinder i banan, genereras på planet	
 
@@ -620,7 +624,7 @@ $(window).load(function() {
 		ground.rotation.x = PI / 2;
 		coin.rotation.x = PI / 2;
 
-		if( newGroundLane == prevGroundLane ) {
+		if( newGroundLane == prevGroundLane ||  prevGroundLane == 3) {
 			ground.position.z = -groundPosZ - segLength/2;
 
 			obstacle.position.z = -groundPosZ - segLength/2;
@@ -645,7 +649,7 @@ $(window).load(function() {
 		ground.position.y = groundPosY;	
 
 		obstacle.position.x = laneWidth * newGroundLane;
-		obstacle.position.y = hoverDist/2;
+		obstacle.position.y = obstacleHeight/2;
 
 		coin.position.y = hoverDist*2;
 		coin.position.x = laneWidth * newGroundLane;
@@ -682,6 +686,7 @@ $(window).load(function() {
 			ground2.name = 'ground';
 			floorList.push(ground2);
 			scene.add(ground2);
+			prevGroundLane = 3;
 		}
 		ground.name = 'ground';
 		scene.add(ground);
@@ -696,6 +701,22 @@ $(window).load(function() {
 	///MÅSTE!!! MÅSTE lägga till removeGroundSegment() ( tror jag.. )
 	function removeGroundSegment() 
 	{
+	}
+
+	// revolutions per second
+      	var angularSpeed = 0.8; 
+      	var lastTime = 0;
+	function animateCoin()
+	{
+        // update
+        var time = (new Date()).getTime();
+        var timeDiff = time - lastTime;
+        var angleChange = angularSpeed * timeDiff * 2 * PI / 1000;
+       	var i;
+       	for (i = 0 ; i < coins.length; i++) {
+        	coins[i].rotation.z += angleChange;
+        }
+        lastTime = time;
 	}
 
 	//Orre edits
