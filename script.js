@@ -39,6 +39,11 @@ $(window).load(function() {
 		cubeY = 140,
 		cubeZ = 180;
 
+	
+	var totalCoinMesh;
+
+
+	
 	var coins = []; //array med coins
 	var checkIfCollect = []; //satt till false i generateGroundSegment
 	var indexCoins = 0;
@@ -166,7 +171,13 @@ $(window).load(function() {
 	    var directionalLight = new THREE.DirectionalLight( 0xffeedd );
 	    directionalLight.position.set( 0, 10, 10 ).normalize();
 
-
+	    //Totalcoins i vänstra hörnet
+	    var coinGeometryTot = new THREE.CylinderGeometry( coinRadiusTop, coinRadiusTop, 10, 32 );
+		var material = new THREE.MeshBasicMaterial( {color: 0xffff00, map: coinTexture, side: THREE.BackSide} );
+		totalCoinMesh= new THREE.Mesh( coinGeometryTot, material );
+		
+		totalCoinMesh.rotation.x =  Math.PI / 2;
+		totalCoinMesh.position.set(-900,550,-1500);
 
 
 			////////////
@@ -304,6 +315,7 @@ $(window).load(function() {
 
 		cube.add(skyBox);
 		camera.add(skyBox);
+		camera.add(totalCoinMesh);
 		//scene.add(skyBox);
 		scene.add(camera);
 		//cube.add(camera);
@@ -350,6 +362,7 @@ $(window).load(function() {
 
 		scene.simulate();
 		animateCoin();
+		//animateTotalCoin();
 	}
 
 	function checkRotation(){
@@ -717,11 +730,28 @@ $(window).load(function() {
         var timeDiff = time - lastTime;
         var angleChange = angularSpeed * timeDiff * 2 * PI / 1000;
        	var i;
+       //	totalCoinMesh.rotation.x =  -Math.PI / 2;
+		//totalCoinMesh.position.set(900,550,-1500);
+
        	for (i = 0 ; i < coins.length; i++) {
         	coins[i].rotation.z += angleChange;
+        	
         }
         lastTime = time;
 	}
+	function animateTotalCoin()
+	{
+        // update
+        var time = (new Date()).getTime();
+        var timeDiff = time - lastTime;
+        var angleChange = angularSpeed * timeDiff * 2 * PI / 1000;
+       	var i;
+    
+       	totalCoinMesh.rotation.z += angleChange;
+        
+        lastTime = time;
+	}
+	
 
 	//Orre edits
 	function checkCoinCollision()
