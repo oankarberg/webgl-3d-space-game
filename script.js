@@ -3,7 +3,11 @@
 $(window).load(function() {
 
 	// laddar in guit
+
 	initialize_GUI();
+	
+
+	
 
 	// standard global variables
 	var floor, floorList, collideableMeshList, 
@@ -415,7 +419,7 @@ $(window).load(function() {
 		    var ray = new THREE.Raycaster( newCube, new THREE.Vector3(0,-1,0), 0, 210);
 		    var collisionResults = ray.intersectObjects( floorList );
 
-		    //Krock!!
+		    //"Krock" med marken
 		    if ( collisionResults.length > 0 && collisionResults[0].distance < 200 ) 
 		    {
 		    	var value = 200;
@@ -428,7 +432,7 @@ $(window).load(function() {
 					cubeYDir = 2;
 
 				var jumpvec = new THREE.Vector3( 0,-gravity*value*cubeYDir, 0 );
-				//var jumpvec = new THREE.Vector3( 0, 150 - collisionResults[0].distance, 0 );
+			
 				cube.applyCentralForce(jumpvec);
 		    }
 	//	}
@@ -754,6 +758,7 @@ $(window).load(function() {
 						checkIfCollect[indexCoins] = true;
 						TOTALCOINS++;
 						indexCoins++;
+						playCoinSound(); 		//hittas i sound.js
 						$('#coins #totalcoins').html(TOTALCOINS);
 						scene.remove(coins[indexCoins-1]);
 
@@ -773,3 +778,4 @@ $(window).load(function() {
 
 
 });
+
