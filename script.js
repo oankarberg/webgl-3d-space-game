@@ -36,7 +36,7 @@ $(window).load(function() {
 
 	//CUBE GEOMETRI
 	var cubeX = 200,
-		cubeY = 40,
+		cubeY = 140,
 		cubeZ = 180;
 
 	var coins = []; //array med coins
@@ -294,7 +294,7 @@ $(window).load(function() {
 		/*rightWing.visible = true;
 		leftWing.visible = true;*/
 		ship.visible = false;
-		cube.visible = false;
+		cube.visible = true;
 
 		//lägg till objekt i scenen/gruppen etc
 		var i;
@@ -461,7 +461,7 @@ $(window).load(function() {
 
 	function shipControls(){
 
-		var jumpvec = new THREE.Vector3( 0, 700, 0 );
+		var jumpvec = new THREE.Vector3( 0, 100, 0 );
 		var rightvec = new THREE.Vector3( 20, 0, 0 );
 		var leftvec = new THREE.Vector3( -20, 0, 0 );
 		var toscreenvec = new THREE.Vector3( 0, 0, 40 );

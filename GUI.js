@@ -48,9 +48,15 @@ function endGame(id, totalCoins){
 
         //restart page
         $('a').click(function(){
-           //sätter url till play again
-            location.href = location.href+'?playagain'; 
-            location.reload();
+           //sätter url till playagain
+            if(checkRefresh() != 'playagain'){
+                location.href = location.href+'?playagain'; 
+               console.log(location.href);
+                location.reload();
+            }else{
+                location.reload();
+                 console.log(location.href  +  "1");
+            }
         });
 
         gameOver = true;
