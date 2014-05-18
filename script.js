@@ -32,7 +32,7 @@ $(window).load(function() {
 
 	//CUBE GEOMETRI
 	var cubeX = 200,
-		cubeY = 70,
+		cubeY = 80,
 		cubeZ = 180;
 
 	
