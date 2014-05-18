@@ -18,7 +18,11 @@ function initialize_GUI(){
     $('#loading').hide();
     $('#WebGL-container').show();
     $('#stopwatch').css('margin-left', window.innerWidth*0.43);
-    $('#coins').css('margin-left', window.innerWidth*0.24);
+    $('#coins').css('margin-left', window.innerWidth*0.14);
+    $('#coins').css('margin-top', window.innerHeight*0.04);
+
+    $('#healthBar').css('margin-left', window.innerWidth*0.075);
+    $('#healthBar').css('margin-top', window.innerHeight*0.15);
     
     //kollar om man klickat på playagain
     if(checkRefresh() != 'playagain'){

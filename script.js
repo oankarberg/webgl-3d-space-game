@@ -22,8 +22,10 @@ $(window).load(function() {
 	var jumpAmp; //hur högt skeppet kan hoppa (jumpAmplitude)
 	var jumpOrdive; //Dyka eller hoppa.
 	var hoverDist; //hur högt över banan som skeppet flyger
-	var shipSpeed;
 	var cubeMass = 0.7;
+
+	var totalHealth = 400;
+	var totalHealthLost = 0;
 
 	//SKEPPETS GEOMETRI
 	var shipLength 	= 200, shipHeight = 60,	shipWidth = 60,
@@ -168,12 +170,12 @@ $(window).load(function() {
 		var totalCoinMesh= new THREE.Mesh( coinGeometryTot, material );
 
 		totalCoinMesh.rotation.x =  Math.PI / 2;
-		totalCoinMesh.position.set(-900,550,-1500);
+		totalCoinMesh.position.set(-window.innerWidth,window.innerHeight*1,-1500);
 
 
 			////////////
 			// CUSTOM //
-			////////////	
+			////////////
 		//////////////////////
 		/// Carlbaum edits ///
 		//////////////////////
@@ -205,7 +207,6 @@ $(window).load(function() {
 		maxTransX = 625;	
 		jumpAmp = 150;
 		hoverDist = shipHeight / 2 + 30; //flyger 100units över planet 
-		shipSpeed = 200;
 
 		ship.position.y = hoverDist;
 
@@ -296,7 +297,7 @@ $(window).load(function() {
 		/*rightWing.visible = true;
 		leftWing.visible = true;*/
 		ship.visible = false;
-		cube.visible = false;
+		cube.visible = true;
 
 		//lägg till objekt i scenen/gruppen etc
 		var i;
@@ -329,12 +330,22 @@ $(window).load(function() {
 		cube.add(ship);
 	}
 
+	function getSeconds(){
+
+		var temp = $('#timer span').html();
+		var tempArr = temp.split("'");
+		return parseInt(tempArr[1]);
+	}
+
+
 	function animate() 
 	{
 
 	    var requestId = requestAnimationFrame( animate );
 	    // för att den endast ska åka i sidled 
 	    cube.lookAt(new THREE.Vector3( 0, 0, 1200 ) );
+	    
+	   // stabilizeCube();
 
 	    camera.position.x = cube.position.x*0.5;
 	    camera.position.z = cube.position.z + 1200;
@@ -347,14 +358,21 @@ $(window).load(function() {
 
 		checkRotation();
 
-
 		// här dör man
-		if(cube.position.y < -500)
+		if((cube.position.y < -500) || getHealth() < 1)
 			endGame(requestId, TOTALCOINS);
 
 		scene.simulate();
 		animateCoin();
 		//animateTotalCoin();
+	}
+
+	//Rätt ful lösning
+	function getHealth(){
+
+		var tempArr = $('#health').css('height').split('p');
+		return parseInt(tempArr[0]);
+
 	}
 
 	function checkRotation(){
@@ -376,9 +394,11 @@ $(window).load(function() {
 	        camera.position.z = z * Math.cos(rotSpeed) - y * Math.sin(rotSpeed);
 	    } else if (keyboard.pressed("B")){
 	        camera.position.y = 100;
+	        camera.position.z = -500;
+	        cube.add(camera);
 	    }
 
-	    camera.lookAt(scene.position);
+	    //camera.lookAt(scene.position);
 
 	}
 
@@ -447,6 +467,9 @@ $(window).load(function() {
 
 	function shipCollideWithObstacle(){
 
+		//skeppets fart
+		var shipSpeed = Math.abs(cube.getLinearVelocity().z);
+
 		for (var vertexIndex = 0; vertexIndex < cube.geometry.vertices.length; vertexIndex++)
 		{       
 		    var localVertex = cube.geometry.vertices[vertexIndex].clone();
@@ -458,10 +481,34 @@ $(window).load(function() {
 
 		    //Krock!!
 		    if ( collisionResults.length > 0 && collisionResults[0].distance < directionVector.length() ) 
-		    {
-		       // console.log("hit");
-		    }
+		    	if(shipSpeed > 500)	// tappar liv om farten är över 500
+		    		shipTakesHit(shipSpeed);
+		    
 		}
+	}
+
+	var shipTakesHit = function(shipSpeed){
+
+		//tappar liv beroende på hur fort man åker
+    	shipSpeed/=400; // skalar ner
+
+    	//räknar ut liv och hur mkt man tappat totalt
+    	totalHealth-=shipSpeed;
+    	totalHealthLost+=shipSpeed;
+
+    	//visar rött i 0.1 sek
+ 		$('#redSplash').show();
+ 		setTimeout(function(){
+			$('#redSplash').hide();
+		}, 100);
+	
+
+    	$('#health').stop().animate({
+ 			height:totalHealth, // höjden på diven är totalt liv
+ 			marginTop:totalHealthLost	// margin top behövs för 
+			}, 500);						//att den ska gå uppifrån och ner
+
+
 	}
 
 

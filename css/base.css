@@ -49,7 +49,7 @@ div#startGameScreen
 }
 div#startGameScreen h1{text-align:center; margin-top: 50px;color:white; font-size:2em;}
 div#startGameScreen #options {border:0px solid white; margin: 0 auto;}
-div#startGameScreen #options #buttons {margin:20px  auto; width:210px; border:0px solid red;}
+div#startGameScreen #options #buttons {margin:20px  auto; width:210px; border:0px solid #c0c0c0;}
 
 
 div#timer{position:absolute; bottom:10px;}
@@ -82,6 +82,14 @@ div.ui-progressbar {
     font-weight: bold;
     text-shadow: 1px 1px 0 #fff;
   }
+
+ div#redSplash{background-color:red; width:100%; height:100%; position:absolute; opacity:0.1;display:none;}
+
+ div#WebGL-container div#healthBar{position:absolute; width:30px; height:400px; 
+ 								   border:3px solid white;  }
+
+ div#WebGL-container div#healthBar div#health{position:relative;width:30px;  height:400px; background-color:red;}
+
 
 
 /*BUTTONS */
