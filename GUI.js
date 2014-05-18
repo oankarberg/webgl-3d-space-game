@@ -1,6 +1,6 @@
 
 var gameOver = false;
-var controlsActived = false;
+var controlsActivated = false;
 
 //Kolla om startskärmen ska upp. jämför url, inte den bästa lösningen..
 function checkRefresh()
@@ -73,9 +73,9 @@ function startGameScreen(){
 
         $('#WebGL-container').css('opacity', '1').fadeTo(2000, 0.8)
  
-        $('#startGameScreen').css('height', window.innerHeight/2);
+        $('#startGameScreen').css('height', window.innerHeight/1.8);
         $('#startGameScreen').css('width', window.innerWidth/2);
-        $('#startGameScreen').css('margin-top', window.innerHeight/4);
+        $('#startGameScreen').css('margin-top', window.innerHeight/8);
         $('#startGameScreen').css('margin-left', window.innerWidth/4);
         $('#startGameScreen #options').css('width', window.innerWidth/3);
 

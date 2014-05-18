@@ -34,11 +34,6 @@ $(window).load(function() {
 	var cubeX = 200,
 		cubeY = 70,
 		cubeZ = 180;
-
-	
-	var totalCoinMesh;
-
-
 	
 	var coins = []; //array med coins
 	var checkIfCollect = []; //satt till false i generateGroundSegment
@@ -170,8 +165,8 @@ $(window).load(function() {
 	    //Totalcoins i vänstra hörnet
 	    var coinGeometryTot = new THREE.CylinderGeometry( coinRadiusTop, coinRadiusTop, 10, 32 );
 		var material = new THREE.MeshBasicMaterial( {color: 0xffff00, map: coinTexture, side: THREE.BackSide} );
-		totalCoinMesh= new THREE.Mesh( coinGeometryTot, material );
-		
+		var totalCoinMesh= new THREE.Mesh( coinGeometryTot, material );
+
 		totalCoinMesh.rotation.x =  Math.PI / 2;
 		totalCoinMesh.position.set(-900,550,-1500);
 
@@ -352,6 +347,7 @@ $(window).load(function() {
 
 		checkRotation();
 
+
 		// här dör man
 		if(cube.position.y < -500)
 			endGame(requestId, TOTALCOINS);
@@ -392,7 +388,7 @@ $(window).load(function() {
 		// för att styra skeppet
 		if(controlsActivated)
 			shipControls();
-		
+
 		checkCoinCollision();
 
 		//ger sekunder sen senaste 
@@ -442,8 +438,7 @@ $(window).load(function() {
 				else
 					cubeYDir = 2;
 
-				var jumpvec = new THREE.Vector3( 0,-gravity*value*cubeYDir, 0 );
-			
+				var jumpvec = new THREE.Vector3( 0,-gravity*value*cubeYDir*0.9, 0 );
 				cube.applyCentralForce(jumpvec);
 		    }
 	//	}
@@ -473,6 +468,7 @@ $(window).load(function() {
 	function shipControls(){
 
 		var jumpvec = new THREE.Vector3( 0, 700, 0 );
+		var downvec = new THREE.Vector3(0, -800, 0);
 		var rightvec = new THREE.Vector3( 20, 0, 0 );
 		var leftvec = new THREE.Vector3( -20, 0, 0 );
 		var toscreenvec = new THREE.Vector3( 0, 0, 40 );
@@ -549,30 +545,43 @@ $(window).load(function() {
 				ship.rotation.x = 0;
 			}
 			else { //if the jump is still in progress
+
 				jumpTime = jumpClock.getElapsedTime();
 
-				ship.position.y = jumpOrdive * jumpAmp * Math.sin( 1 * PI* jumpTime) + hoverDist;
+				//skeppet hänger ju alltid efter kuben nu..?
+				//ship.position.y = jumpOrdive * jumpAmp * Math.sin( 1 * PI* jumpTime) + hoverDist;
 
-				// att göra: minska kubens höjd vid dyk
-				if(jumpOrdive < 0){
-					ship.rotation.x = -jumpOrdive * PI/16 *Math.sin( 2 * PI *jumpTime);
+				if(jumpOrdive === 0){
+					ship.rotation.x = PI/16 *Math.sin( 2 * PI *jumpTime);
 				}
 				// rotation för hopp
 				else
-					ship.rotation.x = PI/16 *Math.sin( 2 * PI *jumpTime);
+					ship.rotation.x = -PI/16 *Math.sin( 2 * PI *jumpTime);
 			}
 		}
 		else if ( keyboard.pressed("space") ) { //if jump is not in progress and user hits space
-			cube.applyCentralImpulse(jumpvec);
+			
+			// för att undvika dubbelhopp.. men går att "bunnyjumpa" om man tajmar rätt;)
+			if(Math.abs(cube.position.y) < 180)
+			{
+				cube.applyCentralImpulse(jumpvec);
+				// 0 för den ska endast hänga efter kuben
+				jumpOrdive = 0;
+				jump(); //starts jump timer
+			}
+		}
 
-			// 0 för den ska endast hänga efter kuben
-			jumpOrdive = 0;
-			jump(); //starts jump timer
-		}
 		else if(keyboard.pressed("shift") ) {
-			jumpOrdive = -0.8;
-			jump();
+
+			// om man inte ska kunna spammdyka och inte dyka i luften..
+			if(Math.abs(cube.position.y) > 80 && Math.abs(cube.position.y) < 180)
+			{
+				cube.applyCentralImpulse(downvec);
+				jumpOrdive = 1;
+				jump();
+			}
 		}
+		console.log(cube.position.y);
 
 	}
 
@@ -608,7 +617,6 @@ $(window).load(function() {
 	function generateGroundSegment() //generates a ground segment
 	{
 		generateGap();
-		//console.log("generera mark");
 		var segLength = Math.floor((Math.random()*1000)+minSegmentLength);			//den faktiska längden på det segment som genereras
 		groundGeometry = new THREE.PlaneGeometry(laneWidth, segLength,2,6); 	//antalet segment är 1 default, tog bort 2 sista parametrarna..Lagg?
 
@@ -719,8 +727,9 @@ $(window).load(function() {
 	}
 
 	// revolutions per second
-      	var angularSpeed = 0.8; 
-      	var lastTime = 0;
+  	var angularSpeed = 0.8; 
+  	var lastTime = 0;
+
 	function animateCoin()
 	{
         // update
@@ -747,7 +756,6 @@ $(window).load(function() {
        	var i;
     
        	totalCoinMesh.rotation.z += angleChange;
-        
         lastTime = time;
 	}
 	

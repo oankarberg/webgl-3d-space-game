@@ -43,11 +43,7 @@ div#startGameScreen
 	position: absolute;
 	display:none;
 	border-radius:30px;
-   	margin-left:300px;
-   	margin-top:100px;
    	border:10px solid black;
-	width:800px; 
-	height: 500px; 
 	background-color:black; 
 	
 }
@@ -76,7 +72,6 @@ h1.white {
 	font-size:2em;
 }
 
-
 div.ui-progressbar {
     position: relative;
   }
@@ -87,6 +82,8 @@ div.ui-progressbar {
     font-weight: bold;
     text-shadow: 1px 1px 0 #fff;
   }
+
+
 /*BUTTONS */
 #playbutton {
 	-moz-box-shadow:inset 0px 1px 0px 0px #fce2c1;
