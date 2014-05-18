@@ -61,13 +61,26 @@ function endGame(id, totalCoins){
        //sätter url till playagain
         if(checkRefresh() != 'playagain'){
             location.href = location.href+'?playagain'; 
-           console.log(location.href);
+            console.log(location.href);
             location.reload();
         }else{
             location.reload();
-             console.log(location.href  +  "1");
+             
         }
     });
+    $(document).keypress(function(e) {
+    if(e.which == 13) {
+        //sätter url till playagain
+        if(checkRefresh() != 'playagain'){
+            location.href = location.href+'?playagain'; 
+            console.log(location.href);
+            location.reload();
+        }else{
+            location.reload();
+             
+        }
+    }
+});
 
     gameOver = true;
 
@@ -82,6 +95,7 @@ function startGameScreen(){
     $('#startGameScreen').css('margin-top', window.innerHeight/8);
     $('#startGameScreen').css('margin-left', window.innerWidth/4);
     $('#startGameScreen #options').css('width', window.innerWidth/3);
+    $('#startGameScreen #spaceshipdiv').css('height', window.innerHeight/2.5);
 
     $('#startGameScreen').css('opacity', '0').fadeTo(2000, 0.8)
 

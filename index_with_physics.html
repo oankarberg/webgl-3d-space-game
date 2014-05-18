@@ -69,7 +69,11 @@
 	<!-- Start game -->
 	<div id = "startGameScreen">
 		<h1> Welcome to Tourettes Space Game! </h1>
-
+		<div id = "spaceshipdiv">
+			<div id = "spacecontrolsdiv">
+				<img src="images/control.png"/>
+			</div>
+		</div>
 		<div id = "options">
 			<div id = "buttons">
 				<a style="text-align:center;" href="#" onclick="javascript:playGame();" id="playbutton">PLAY</a>
@@ -83,8 +87,10 @@
 	<div id = "gameOverScreen">
 		<h1> Game over! </h1>
 		<div id = "result">
-			<p>You got <span id = "totalcoins" > </span> coins in <span id = "time"></span> seconds!</p><br/>
-			<p><a id="try_again">Try again?</a></p>
+			<div id = "buttons">
+				<p>You got <span id = "totalcoins" > </span> coins in <span id = "time"></span> seconds!</p><br/>
+				<p><a id="try_again">Play again</a></p>
+			</div>
 		</div>
 
 	</div>
