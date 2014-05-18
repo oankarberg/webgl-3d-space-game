@@ -32,7 +32,7 @@ $(window).load(function() {
 
 	//CUBE GEOMETRI
 	var cubeX = 200,
-		cubeY = 70,
+		cubeY = 80,
 		cubeZ = 180;
 	
 	var coins = []; //array med coins
@@ -296,7 +296,7 @@ $(window).load(function() {
 		/*rightWing.visible = true;
 		leftWing.visible = true;*/
 		ship.visible = false;
-		cube.visible = true;
+		cube.visible = false;
 
 		//lägg till objekt i scenen/gruppen etc
 		var i;
