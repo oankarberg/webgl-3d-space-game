@@ -1,11 +1,13 @@
 
 var gameOver = false;
+var controlsActived = false;
 
 //Kolla om startskärmen ska upp. jämför url, inte den bästa lösningen..
 function checkRefresh()
 {
     //hämta url
     var url = window.location.href;
+    console.log("URL : " + url);
     var playagain = url.split('?',2)
     console.log(playagain[1]);
     return playagain[1];
@@ -23,20 +25,21 @@ function initialize_GUI(){
          startGameScreen();  
     }else
     {
+        activateControls();
         startTimer();
     }
-    
-
-
 }
+var activateControls = function(){
 
+    controlsActivated = true;
+}
 
 function endGame(id, totalCoins){
 
         // stop loop
         window.cancelAnimationFrame(id);
 
-        $('#WebGL-container').css('opacity', '1').fadeTo(500, 0.4)
+        $('#WebGL-container').css('opacity', '1').fadeTo(500, 0.8)
         var time = $('#timer span').html();
 
         // show results
@@ -68,25 +71,48 @@ function endGame(id, totalCoins){
 
 function startGameScreen(){
 
-   
-
-        $('#WebGL-container').css('opacity', '1').fadeTo(2000, 1)
+        $('#WebGL-container').css('opacity', '1').fadeTo(2000, 0.8)
  
         $('#startGameScreen').css('height', window.innerHeight/2);
         $('#startGameScreen').css('width', window.innerWidth/2);
         $('#startGameScreen').css('margin-top', window.innerHeight/4);
         $('#startGameScreen').css('margin-left', window.innerWidth/4);
         $('#startGameScreen #options').css('width', window.innerWidth/3);
-     
-
 
         $('#startGameScreen').css('opacity', '0').fadeTo(2000, 0.8)
 
-
-        gameOver = true;
-      
+        //gameOver = true; 
 
 }
+
+
+//ta bort startscreen
+function playGame()
+    {
+        activateControls();
+        gameOver = false;
+        startTimer();
+         // stop loop
+      
+        $('#WebGL-container').css('opacity', '1').fadeTo(500, 1);
+        //var time = $('#timer span').html();
+
+        // show results
+       // $('#result #time').html(time);
+        //$('#result #totalcoins').html(totalCoins);
+
+/*      Behövs inte??
+        $('#startGameScreen').css('height', window.innerHeight/2);
+        $('#startGameScreen').css('width', window.innerWidth/2);
+        $('#startGameScreen').css('margin-top', window.innerHeight/4);
+        $('#startGameScreen').css('margin-left', window.innerWidth/4);
+        $('#startGameScreen #options').css('width', window.innerWidth/3);*/
+    
+        $('#startGameScreen').css('display', 'none');
+        //return false; varför return false funktion kallas aldrig på förutom i index?
+    }
+
+
 /// FÖR TIMERN ////
 //////////////////
 /////////////////
@@ -135,34 +161,4 @@ function startTimer() {
     };
     $(init);
 };
-
-//ta bort startscreen
-function playGame()
-    {
-        gameOver =false;
-        startTimer();
-         // stop loop
-      
-        $('#WebGL-container').css('opacity', '1').fadeTo(500, 1)
-        //var time = $('#timer span').html();
-
-        // show results
-       // $('#result #time').html(time);
-        //$('#result #totalcoins').html(totalCoins);
-
-        $('#startGameScreen').css('height', window.innerHeight/2);
-        $('#startGameScreen').css('width', window.innerWidth/2);
-        $('#startGameScreen').css('margin-top', window.innerHeight/4);
-        $('#startGameScreen').css('margin-left', window.innerWidth/4);
-        $('#startGameScreen #options').css('width', window.innerWidth/3);
-     
-
-
-        $('#startGameScreen').css('display', 'none');
-
-      
-    
-
-        return false;
-    }
 

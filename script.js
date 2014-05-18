@@ -3,11 +3,7 @@
 $(window).load(function() {
 
 	// laddar in guit
-
 	initialize_GUI();
-	
-
-	
 
 	// standard global variables
 	var floor, floorList, collideableMeshList, 
@@ -36,7 +32,7 @@ $(window).load(function() {
 
 	//CUBE GEOMETRI
 	var cubeX = 200,
-		cubeY = 140,
+		cubeY = 70,
 		cubeZ = 180;
 
 	
@@ -394,7 +390,9 @@ $(window).load(function() {
 	{	
 
 		// för att styra skeppet
-		shipControls();
+		if(controlsActivated)
+			shipControls();
+		
 		checkCoinCollision();
 
 		//ger sekunder sen senaste 
@@ -474,7 +472,7 @@ $(window).load(function() {
 
 	function shipControls(){
 
-		var jumpvec = new THREE.Vector3( 0, 100, 0 );
+		var jumpvec = new THREE.Vector3( 0, 700, 0 );
 		var rightvec = new THREE.Vector3( 20, 0, 0 );
 		var leftvec = new THREE.Vector3( -20, 0, 0 );
 		var toscreenvec = new THREE.Vector3( 0, 0, 40 );
@@ -739,6 +737,7 @@ $(window).load(function() {
         }
         lastTime = time;
 	}
+	
 	function animateTotalCoin()
 	{
         // update
