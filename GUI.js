@@ -68,6 +68,8 @@ function endGame(id, totalCoins){
              
         }
     });
+
+    //restart page på ENTER 
     $(document).keypress(function(e) {
     if(e.which == 13) {
         //sätter url till playagain

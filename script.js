@@ -522,7 +522,7 @@ $(window).load(function() {
 		var awayscreenvec = new THREE.Vector3( 0, 0, -30);
 
 		//skeppets fart
-		if ( keyboard.pressed("W") && cube.getLinearVelocity().z > -3000 ) {
+		if ( keyboard.pressed("up") && cube.getLinearVelocity().z > -3000 ) {
 
 			cube.applyCentralImpulse(awayscreenvec);			
 
@@ -533,16 +533,16 @@ $(window).load(function() {
 		else
 			engine.positionStyle = Type.CUBE;
 
-		if ( keyboard.pressed("S") ) 
+		if ( keyboard.pressed("down") ) 
 			cube.applyCentralImpulse(toscreenvec);
 
 		//skeppets lutning
-		if ( keyboard.pressed("D") ||  keyboard.pressed("A") ) {
-			if ( keyboard.pressed("D") &&   keyboard.pressed("A") ) { //om båda knapparna hålls in -> räknas som dem är släppta
+		if ( keyboard.pressed("right") ||  keyboard.pressed("left") ) {
+			if ( keyboard.pressed("right") &&   keyboard.pressed("left") ) { //om båda knapparna hålls in -> räknas som dem är släppta
 				stabilizeShip(dt, ship.rotation.z, 1.0);
 			}
 
-			else if ( keyboard.pressed("D") ) {
+			else if ( keyboard.pressed("right") ) {
 
 				if ( ship.position.x >= maxTransX -200) { 	//om skeppet närmar sig maxTransX, stabilisera
 					ship.rotation.z = stabilizeShip(dt, ship.rotation.z, 5.0);
@@ -555,7 +555,7 @@ $(window).load(function() {
 					ship.rotation.z = -maxRotX;
 			}
 
-			else if ( keyboard.pressed("A") ) {
+			else if ( keyboard.pressed("left") ) {
 				if ( ship.position.x <= -maxTransX +200) {
 					ship.rotation.z = stabilizeShip(dt, ship.rotation.z, 5.0);
 				}
