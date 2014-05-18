@@ -301,7 +301,7 @@ $(window).load(function() {
 		/*rightWing.visible = true;
 		leftWing.visible = true;*/
 		ship.visible = false;
-		cube.visible = true;
+		cube.visible = false;
 
 		//lägg till objekt i scenen/gruppen etc
 		var i;
