@@ -581,7 +581,7 @@ $(window).load(function() {
 				jump();
 			}
 		}
-		console.log(cube.position.y);
+		//console.log(cube.position.y);
 
 	}
 
