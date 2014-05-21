@@ -21,8 +21,8 @@ function initialize_GUI(){
     $('#coins').css('margin-left', window.innerWidth*0.14);
     $('#coins').css('margin-top', window.innerHeight*0.04);
 
-    $('#healthBar').css('margin-left', window.innerWidth*0.075);
-    $('#healthBar').css('margin-top', window.innerHeight*0.15);
+    $('#healthBar').css('margin-left', window.innerWidth*0.37);
+    $('#healthBar').css('margin-top', window.innerHeight*0.05);
     
     //kollar om man klickat på playagain
     if(checkRefresh() != 'playagain'){
