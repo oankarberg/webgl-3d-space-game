@@ -44,6 +44,8 @@ $(window).load(function() {
 	var shipDistZ = 0,
 		shipDistStart = 0;
 
+	var shipStartPosition = -300;
+
 	//COINS per spel
 	var TOTALCOINS = 0;
 
@@ -74,6 +76,8 @@ $(window).load(function() {
 	var obstacleMaterial = new THREE.MeshLambertMaterial( { color: 0xffffff, map: obstacleTexture, side: THREE.DoubleSide } );
 	var obstacleGeometry,
 		obstacleHeight = 250;
+
+	var totalCoinMesh;
 	
 	var count = 0;
 	
@@ -167,11 +171,16 @@ $(window).load(function() {
 	    //Totalcoins i vänstra hörnet
 	    var coinGeometryTot = new THREE.CylinderGeometry( coinRadiusTop, coinRadiusTop, 10, 32 );
 		var material = new THREE.MeshBasicMaterial( {color: 0xffff00, map: coinTexture, side: THREE.BackSide} );
-		var totalCoinMesh= new THREE.Mesh( coinGeometryTot, material );
+		totalCoinMesh = new THREE.Mesh( coinGeometryTot, material );
+
+		//Position på totalcoins i hörnet, efter storlek på skärmen
+		var totalCoinPosX = -(document.getElementById("WebGL-container").offsetWidth)/2;
+		var totalCoinPosY = (document.getElementById("WebGL-container").offsetHeight)/1.25;
+		var totalCoinPosZ = -1500;
 
 		totalCoinMesh.rotation.x =  Math.PI / 2;
-		totalCoinMesh.position.set(-window.innerWidth,window.innerHeight*1,-1500);
-
+		totalCoinMesh.position.set(totalCoinPosX, totalCoinPosY, totalCoinPosZ);
+		
 
 			////////////
 			// CUSTOM //
@@ -183,6 +192,7 @@ $(window).load(function() {
 		//kuben som styr fysiken
 		cube = new Physijs.BoxMesh(new THREE.CubeGeometry(cubeX,cubeY,cubeZ), floorMaterial, cubeMass);
 		cube.position.y = 200;
+		cube.position.z = shipStartPosition;
 
 		scene.setGravity(new THREE.Vector3( 0, gravity, 0 ));
 
@@ -297,7 +307,7 @@ $(window).load(function() {
 		/*rightWing.visible = true;
 		leftWing.visible = true;*/
 		ship.visible = false;
-		cube.visible = true;
+		cube.visible = false;
 
 		//lägg till objekt i scenen/gruppen etc
 		var i;
@@ -347,8 +357,8 @@ $(window).load(function() {
 	    
 	   // stabilizeCube();
 
-	    camera.position.x = cube.position.x*0.5;
-	    camera.position.z = cube.position.z + 1200;
+		camera.position.x = cube.position.x*0.5;
+	   	camera.position.z = cube.position.z + 1200;
 	    lookatpoint.position.x = cube.position.x*0.5;
 		lookatpoint.position.z = cube.position.z-1500;
 		camera.lookAt(lookatpoint.position);
@@ -747,9 +757,7 @@ $(window).load(function() {
 				var temp = new THREE.Vector3( coin.position.x, coin.position.y, coin.position.z );
 				coins.push(coin);
 				checkIfCollect.push(false);
-				console.log("X = " + coin.position.x);
-				console.log("Y = " + coin.position.y);
-				console.log("Z = " + coin.position.z);
+				
 			}
 
 		count++;
@@ -795,13 +803,13 @@ $(window).load(function() {
         var timeDiff = time - lastTime;
         var angleChange = angularSpeed * timeDiff * 2 * PI / 1000;
        	var i;
-       //	totalCoinMesh.rotation.x =  -Math.PI / 2;
-		//totalCoinMesh.position.set(900,550,-1500);
+      
 
        	for (i = 0 ; i < coins.length; i++) {
         	coins[i].rotation.z += angleChange;
         	
         }
+        
         lastTime = time;
 	}
 	
@@ -812,7 +820,7 @@ $(window).load(function() {
         var timeDiff = time - lastTime;
         var angleChange = angularSpeed * timeDiff * 2 * PI / 1000;
        	var i;
-    
+    	
        	totalCoinMesh.rotation.z += angleChange;
         lastTime = time;
 	}
