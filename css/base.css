@@ -13,16 +13,14 @@ body
 
 div#WebGL-container{display:none; float:left; position: absolute; }
 
-div#gameOverScreen{position: absolute; 
-				   display: none; 
-				   width:800px; 
-				   height: 500px; 
-				   background-color:black; 
+div#gameOverScreen{
+	position: absolute;
+	display:none;
+	border-radius:30px;
+   	border:10px solid black;
+	background-color:black;
+}
 
-				   
-				   border-radius:30px;
-				   margin-left:300px;
-				   margin-top:100px;}
 
 a{cursor:pointer;}
 a:hover { color: red; }
@@ -32,8 +30,9 @@ a:active { color: #c0c0c0;}
 div#loading{width:100%; height:100%; margin-top:0px ; background-color:black;}
 div#loading h1{color:white;}
 
-div#gameOverScreen h1{margin-top: 50px; color:white;text-align:center;font-size:2em;}
-div#gameOverScreen div#result{margin-left: auto; margin-right:auto; width:300px; height:100px; }
+div#gameOverScreen h1{ line-height:0px;font-family: "Myriad Pro","Source Sans Pro",sans-serif; text-align:center; margin-top: 50px;color:white; font-size:2em;}
+
+div#gameOverScreen div#result{margin-left: auto; margin-right:auto; }
 div#gameOverScreen div#result p{color:white;}
 div#gameOverScreen div#result #red{color:red;}
 div#gameOverScreen div#result p#try_again{cursor:pointer;}
@@ -45,14 +44,16 @@ div#startGameScreen
 	border-radius:30px;
    	border:10px solid black;
 	background-color:black; 
-	
 }
-div#startGameScreen h1{text-align:center; margin-top: 50px;color:white; font-size:2em;}
-div#startGameScreen #options {border:0px solid white; margin: 0 auto;}
-div#startGameScreen #spaceshipdiv {border:0px solid white; margin: 0 auto;}
-div#startGameScreen #spacecontrolsdiv {border:0px solid white;margin-top:120px; margin-left:70px;}
+div#startGameScreen h1{ font-family: "Myriad Pro","Source Sans Pro",sans-serif; text-align:center; margin-top: 50px;color:white; font-size:2em;}
+div#startGameScreen div#spacecontrolsdiv { border:0px solid white; margin-top:30px; margin-left:150px;}
 
-div#startGameScreen #options #buttons {margin:20px  auto; width:210px; border:0px solid #c0c0c0;}
+div.options {border:0px solid white; margin: 0 auto;}
+div.spaceshipdiv {border:0px solid white; margin: 0 auto;}
+div.someInfo{ margin-left:110px; border-top:1px solid white; width:620px; padding-top:10px;}
+div.someInfo p{ line-height: 1rem; font-family: "Myriad Pro","Source Sans Pro",sans-serif; color:white; }
+div.buttons {margin:20px auto; width:210px; border:0px solid #c0c0c0;}
+div.buttons_2 {margin:20px auto; width:400px; border:0px solid #c0c0c0;}
 
 
 div#timer{position:absolute; bottom:10px;}
@@ -86,7 +87,7 @@ div.ui-progressbar {
     text-shadow: 1px 1px 0 #fff;
   }
 
- div#redSplash{background-color:red; width:100%; height:100%; position:absolute; opacity:0.1;display:none;}
+ div#redSplash{background-color:#770003; width:100%; height:100%; position:absolute; opacity:0.2;display:none;}
 
  div#WebGL-container div#healthBar{position:absolute; width:400px; height:20px; 
  								   border:4px solid #c0c0c0; }

@@ -72,16 +72,23 @@
 	<div id = "startGameScreen">
 		<h1> Welcome to Tourettes Space Game! </h1>
 
-		<div id = "options">
-			<div id = "buttons">
+		<div class = "options">
+			<div class = "buttons">
 				<a style="text-align:center;" href="#" onclick="javascript:playGame();" id="playbutton">PLAY</a>
-				<a href="#" id="playbutton">ABOUT</a>
+				<a href="#" onclick="javascript:about();" id="playbutton">ABOUT</a>
 			</div>
 		</div>
 
-		<div id = "spaceshipdiv">
+		<div class = "spaceshipdiv">
+			<div class = "someInfo">
+				<p>You are a brave astronaut who's been selected by the government to explore
+				unknown areas in space. The aim is to get as far as possible and to collect coins to support the poverty
+				on the earth. The people are counting on you!
+				</p>
+			</div>
+
 			<div id = "spacecontrolsdiv">
-				<img src="images/control.png"/>
+				<img src="images/control.png" height="80%" width = "80%"/>
 			</div>
 		</div>
 	
@@ -90,12 +97,19 @@
 	<!-- Game over -->
 	<div id = "gameOverScreen">
 		<h1> Game over! </h1>
-		<div id = "result">
-			<div id = "buttons">
-				<p>You got <span id = "totalcoins" > </span> coins in <span id = "time"></span> seconds!</p><br/>
-				<p style="text-align:center;"><a href="#" onclick="javascript:playGame();" id="playbutton">Play again</a>
-				</br> [Enter]
+		<div class = "options">
+			<div class = "buttons_2">
+					<br/>
+						<p style="text-align:center;"><a href="#" onclick="javascript:playGame();" id="playbutton">Play again</a>
+						<a href="#" onclick="javascript:about();" id="playbutton">Highscores</a>
+					</br>
 				</p>
+			</div>
+		</div>
+
+		<div class = "spaceshipdiv">
+			<div class = "someInfo">
+				<p>Oops you crashed your ship and died! You got <span id = "totalcoins" > </span> coins in <span id = "time"></span> seconds!</p>
 			</div>
 		</div>
 

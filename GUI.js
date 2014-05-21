@@ -47,10 +47,10 @@ function endGame(id, totalCoins){
     var time = $('#timer span').html();
 
     // show results
-    $('#result #time').html(time);
-    $('#result #totalcoins').html(totalCoins);
+    $('.someInfo #time').html(time);
+    $('.someInfo #totalcoins').html(totalCoins);
 
-    $('#gameOverScreen').css('height', window.innerHeight/2);
+    $('#gameOverScreen').css('height', window.innerHeight/3.5);
     $('#gameOverScreen').css('width', window.innerWidth/2);
     $('#gameOverScreen').css('margin-top', window.innerHeight/4);
     $('#gameOverScreen').css('margin-left', window.innerWidth/4);
@@ -105,6 +105,13 @@ function startGameScreen(){
 
 }
 
+//about
+var about = function(){
+
+    alert("Made by Nova, Ogge, Kängen, Yosuf och Runkebaum")
+
+
+}
 
 //ta bort startscreen
 function playGame()
