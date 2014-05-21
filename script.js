@@ -47,7 +47,8 @@ $(window).load(function() {
 		cubeZ = 180;
 
 	var startingSpeed =  -1500;
-	var levelSpeed = 1;
+	var levelSpeed = 0;
+	var distanceNewLevel = -10000;
 
 	//Skybox geometri
 	var skyBoxX =20000,
@@ -67,7 +68,8 @@ $(window).load(function() {
 
 	var shipDistZ = 0,
 		shipDistStart = 0,
-		shipDistStartForStars = 0;
+		shipDistStartForStars = 0,
+		shipDistStartForLevel = 0;
 
 	var shipStartPosition = -300;
 
@@ -473,6 +475,30 @@ $(window).load(function() {
 			addStarSystem();
 			shipDistStartForStars = cube.position.z;
 		}
+		//kolla avstånd och från punkt till punkt och öka i level! , Ändra DistanceNEwlevel för lite andra lvlup
+		if( shipDistZ-shipDistStartForLevel <= distanceNewLevel)
+		{
+			levelSpeed++;
+			shipDistStartForLevel = cube.position.z;
+
+			//lägga in en splash "next level"
+			$('#level').css('height', window.innerHeight/1.8);
+		    $('#level').css('width', window.innerWidth/2);
+		    $('#level').css('margin-top', window.innerHeight/8);
+		    $('#level').css('margin-left', window.innerWidth/4);
+		    $('#level').css('opacity', '0').fadeTo(2000, 0.8)
+		  
+		    $('#level #hlvl').animate({fontSize:'50em', width:'5000px'},3000,
+		    function(){	// callback, detta utförs när animationen är klar
+
+					$('#level #hlvl').css('font-size', '4em');
+					$('#level #hlvl').css('width', '30px');
+
+			});	
+		
+			$('#level #lvl').html(levelSpeed);
+
+		}
 
 		shipHover();
 		shipCollideWithObstacle();
@@ -584,7 +610,7 @@ $(window).load(function() {
 
 
 		//skeppets fart - Ändring för olika levels man når //gamepaused fungerar inte för man "svävar"  ..tryck "P"
-		if ((cube.getLinearVelocity().z > startingSpeed*levelSpeed)&& (gamePaused != true)) {
+		if ((cube.getLinearVelocity().z > startingSpeed-(levelSpeed*1000))&& (gamePaused != true)) {
 
 			cube.applyCentralImpulse(awayscreenvec);			
 
@@ -961,7 +987,7 @@ $(window).load(function() {
 	//Lägger till ett partikelsystem med stjärnor. 
 	function addStarSystem(){
 	// skapar partikelvariablerna
-		var particleCount = 1800,
+		var particleCount = 1000,
 		    particles = new THREE.Geometry(),
 		    pMaterial = new THREE.ParticleBasicMaterial({
 		      color: 0xFFFF66,

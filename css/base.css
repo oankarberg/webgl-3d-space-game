@@ -56,6 +56,18 @@ div.buttons {margin:20px auto; width:210px; border:0px solid #c0c0c0;}
 div.buttons_2 {margin:20px auto; width:400px; border:0px solid #c0c0c0;}
 
 
+div#level{
+	position: absolute;
+	margin-left:500px;
+	margin-right:auto;
+	display:none;
+	width:300px;
+	border-radius:30px;
+	background-color:none; 
+}
+div#level  #hlvl{position:absolute; font-family: "Myriad Pro","Source Sans Pro",sans-serif; text-align:center; margin-top: 50px;color:white; font-size:6em;}
+
+
 div#timer{position:absolute; bottom:10px;}
 div#timer #stopwatch{font-size:3em; color:white; font-weight:600; }
 
