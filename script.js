@@ -369,7 +369,7 @@ $(window).load(function() {
 		checkRotation();
 
 		// här dör man
-		if((cube.position.y < -500) || getHealth() < 1)
+		if((cube.position.y < -500) || pixelsToNumber($('#health').css('width')) < 1)
 			endGame(requestId, TOTALCOINS);
 
 		scene.simulate();
@@ -378,9 +378,9 @@ $(window).load(function() {
 	}
 
 	//Rätt ful lösning
-	function getHealth(){
+	function pixelsToNumber(px){
 
-		var tempArr = $('#health').css('height').split('p');
+		var tempArr = px.split('p');
 		return parseInt(tempArr[0]);
 
 	}
@@ -490,8 +490,8 @@ $(window).load(function() {
 		    var collisionResults = ray.intersectObjects( collideableMeshList );
 
 		    //Krock!!
-		    if ( collisionResults.length > 0 && collisionResults[0].distance < directionVector.length() ) 
-		    	if(shipSpeed > 500)	// tappar liv om farten är över 500
+		    if ( collisionResults.length > 0 && collisionResults[0].distance <= directionVector.length() )
+		    	if(shipSpeed > 200)	// tappar liv om farten är över 500
 		    		shipTakesHit(shipSpeed);
 		    
 		}
@@ -511,13 +511,24 @@ $(window).load(function() {
  		setTimeout(function(){
 			$('#redSplash').hide();
 		}, 100);
-	
+    						
+    	animateHealthBar();
 
-    	$('#health').stop().animate({
- 			height:totalHealth, // höjden på diven är totalt liv
- 			marginTop:totalHealthLost	// margin top behövs för 
-			}, 500);						//att den ska gå uppifrån och ner
+	}
 
+	var animateHealthBar = function(){
+
+		$('#health').stop().animate({
+ 			width:totalHealth, // bredden på diven är totalt liv
+ 			marginLeft:totalHealthLost	// för att animare vänster -> höger
+			}, 500, function(){	// callback, detta utförs när animationen är klar
+
+				if(pixelsToNumber($('#health').css('width')) <= 200)
+					$('#health').css('background-color', 'yellow');
+
+				if(pixelsToNumber($('#health').css('width')) <= 100)
+					$('#health').css('background-color', 'red');
+			});					//att den ska gå uppifrån och ner
 
 	}
 
