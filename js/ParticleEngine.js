@@ -420,7 +420,89 @@ ParticleEngine.prototype.update = function(dt)
 	this.emitterAge += dt;
 	if ( this.emitterAge > this.emitterDeathAge )  this.emitterAlive = false;
 }
+//La in för att dom inte skulle "krocka " men funkar ändå inte
+Particle.prototype.update2 = function(dt)
+{
+	this.position.add( this.velocity.clone().multiplyScalar(dt) );
+	this.velocity.add( this.acceleration.clone().multiplyScalar(dt) );
+	
+	// convert from degrees to radians: 0.01745329251 = Math.PI/180
+	this.angle         += this.angleVelocity     * 0.01745329251 * dt;
+	this.angleVelocity += this.angleAcceleration * 0.01745329251 * dt;
 
+	this.age += dt;
+	
+	// if the tween for a given attribute is nonempty,
+	//  then use it to update the attribute's value
+
+	if ( this.sizeTween.times.length > 0 )
+		this.size = this.sizeTween.lerp( this.age );
+				
+	if ( this.colorTween.times.length > 0 )
+	{
+		var colorHSL = this.colorTween.lerp( this.age );
+		this.color = new THREE.Color().setHSL( colorHSL.x, colorHSL.y, colorHSL.z );
+	}
+	
+	if ( this.opacityTween.times.length > 0 )
+		this.opacity = this.opacityTween.lerp( this.age );
+}
+ParticleEngine.prototype.update2 = function(dt)
+{
+	var recycleIndices = [];
+	
+	// update particle data
+	for (var i = 0; i < this.particleCount; i++)
+	{
+		if ( this.particleArray[i].alive )
+		{
+			this.particleArray[i].update(dt);
+
+			// check if particle should expire
+			// could also use: death by size<0 or alpha<0.
+			if ( this.particleArray[i].age > this.particleDeathAge ) 
+			{
+				this.particleArray[i].alive = 0.0;
+				recycleIndices.push(i);
+			}
+			// update particle properties in shader
+			this.particleMaterial.attributes.customVisible.value[i] = this.particleArray[i].alive;
+			this.particleMaterial.attributes.customColor.value[i]   = this.particleArray[i].color;
+			this.particleMaterial.attributes.customOpacity.value[i] = this.particleArray[i].opacity;
+			this.particleMaterial.attributes.customSize.value[i]    = this.particleArray[i].size;
+			this.particleMaterial.attributes.customAngle.value[i]   = this.particleArray[i].angle;
+		}		
+	}
+
+	// check if particle emitter is still running
+	if ( !this.emitterAlive ) return;
+
+	// if no particles have died yet, then there are still particles to activate
+	if ( this.emitterAge < this.particleDeathAge )
+	{
+		// determine indices of particles to activate
+		var startIndex = Math.round( this.particlesPerSecond * (this.emitterAge +  0) );
+		var   endIndex = Math.round( this.particlesPerSecond * (this.emitterAge + dt) );
+		if  ( endIndex > this.particleCount ) 
+			  endIndex = this.particleCount; 
+			  
+		for (var i = startIndex; i < endIndex; i++)
+			this.particleArray[i].alive = 1.0;		
+	}
+
+	// if any particles have died while the emitter is still running, we imediately recycle them
+	for (var j = 0; j < recycleIndices.length; j++)
+	{
+		var i = recycleIndices[j];
+		this.particleArray[i] = this.createParticle();
+		this.particleArray[i].alive = 1.0; // activate right away
+		this.particleGeometry.vertices[i] = this.particleArray[i].position;
+	}
+
+	// stop emitter?
+	this.emitterAge += dt;
+	if ( this.emitterAge > this.emitterDeathAge )  this.emitterAlive = false;
+}
 ParticleEngine.prototype.destroy = function()
 {
     scene.remove( this.particleMesh );

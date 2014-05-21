@@ -20,7 +20,9 @@ $(window).load(function() {
 	var jumpClock;
 	var jumpTime = 0.0;
 
-	
+	var countStarSystem = 0;
+
+	var starTime = 0.0;	
 
 
 	var bulletShot = false;
@@ -47,13 +49,16 @@ $(window).load(function() {
 	var startingSpeed =  -1500;
 	var levelSpeed = 1;
 
-	
-
+	//Skybox geometri
+	var skyBoxX =20000,
+		skyBoxY = 8000,
+		skyBoxZ = 30000;
 	
 	var coins = []; //array med coins
 	var checkIfCollect = []; //satt till false i generateGroundSegment
 	var indexCoins = 0;
 
+	//skott
 	var ammunition = [];
 	var bulletMesh;
 	var bulletX =10,
@@ -61,7 +66,8 @@ $(window).load(function() {
 		bulletZ =400;
 
 	var shipDistZ = 0,
-		shipDistStart = 0;
+		shipDistStart = 0,
+		shipDistStartForStars = 0;
 
 	var shipStartPosition = -300;
 
@@ -167,7 +173,7 @@ $(window).load(function() {
 
 		floorList = [floor];
 
-
+		
 
 		// SKYBOX/FOG
 		var skyBoxGeometry  = new THREE.CubeGeometry( 20000, 8000, 30000 );
@@ -353,6 +359,8 @@ $(window).load(function() {
 		ship.add( lightRear );	
 		ship.add( engine.particleMesh );
 
+		//lägg till partikelsystem med "stjärnor"
+		addStarSystem();
 
 		group.add(lightMain);
 		cube.add(group);
@@ -378,7 +386,6 @@ $(window).load(function() {
 	    
 	   // stabilizeCube();
 	   
-
 
 		camera.position.x = cube.position.x*0.5;
 	   	camera.position.z = cube.position.z + 1200;
@@ -450,7 +457,8 @@ $(window).load(function() {
 		engine.update( dt * 0.8 );	//uppdatera particles
 		if(bulletShot == true)
 		{
-			bulletEngine.update( dt * 2);	//uppdatera particles skott
+			//update2 gjorde ingen skillnad till problemet att det motorn slutar fungera när man skjuter...
+			bulletEngine.update2( dt * 2);	//uppdatera particles skott
 		}
 			
 		//generera ett vägsegment 
@@ -459,6 +467,11 @@ $(window).load(function() {
 		if ( shipDistZ-shipDistStart <= -500 ) {
 			generateGroundSegment();
 			shipDistStart = cube.position.z;
+		}
+		//generera stjärnor  
+		if ( shipDistZ-shipDistStartForStars <= -skyBoxZ/2 ) {
+			addStarSystem();
+			shipDistStartForStars = cube.position.z;
 		}
 
 		shipHover();
@@ -708,7 +721,12 @@ $(window).load(function() {
 		jumpClock.start();
 		jumpTime = jumpClock.getElapsedTime();
 	}
-	
+	function starTimer()
+	{
+		starClock = new THREE.Clock();
+		starClock.start();
+		starTime = starClock.getElapsedTime();
+	}
 
 
 	function render() 
@@ -938,21 +956,59 @@ $(window).load(function() {
 
 
 	}
-	//restart page på ENTER 
-    /*$(document).keypress(function(e) {
-    if(e.which == 13) {
-    	if(gamePaused != true)
-    	{
-    		gamePaused = true;
-    	}else
-    	{
-    		gamePaused = false;
-    		animate();
-    	}
-        
-    }
-	});
-	*/
+
+
+	//Lägger till ett partikelsystem med stjärnor. 
+	function addStarSystem(){
+	// skapar partikelvariablerna
+		var particleCount = 1800,
+		    particles = new THREE.Geometry(),
+		    pMaterial = new THREE.ParticleBasicMaterial({
+		      color: 0xFFFF66,
+		      size: 100,
+		      map:THREE.ImageUtils.loadTexture( 'images/spikey.png' ),
+		      blending: THREE.AdditiveBlending,
+	  		  transparent: true
+		    });
+
+
+
+		// skapar dom individuelle partiklarna random
+		for (var p = 0; p < particleCount; p++) {
+
+		  // position på partiklarna, inom skyBoxen
+		  var pX = Math.random() * skyBoxX - skyBoxX/2,
+		      pY = Math.random() * skyBoxY - skyBoxY/2,
+		      pZ = Math.random() * skyBoxZ - skyBoxZ/2,
+		      particle = new THREE.Vertex(
+		        new THREE.Vector3(pX, pY, pZ)
+		      );
+
+		  // Lägg till i vektorgeometrin
+		  particles.vertices.push(particle);
+		}
+
+		// skapr partikelsystemet
+		var particleSystem = new THREE.ParticleSystem(
+		    particles,
+		    pMaterial);
+		particleSystem.sortParticles = true;
+		
+			
+
+		particleSystem.position.set(0, 0, -skyBoxZ*countStarSystem - skyBoxZ/2);
+		countStarSystem++;
+		
+		
+		scene.add(particleSystem);
+	}
+
+	function checkDistance(){
+		if(shipDistZ <= -skyBoxZ/4)
+			return true;
+		else return false;
+
+	}
 
 });
 
