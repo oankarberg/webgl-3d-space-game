@@ -50,14 +50,14 @@ function endGame(id, totalCoins){
     $('.someInfo #time').html(time);
     $('.someInfo #totalcoins').html(totalCoins);
 
-    $('#gameOverScreen').css('height', window.innerHeight/3.5);
+    $('#gameOverScreen').css('height', window.innerHeight/2);
     $('#gameOverScreen').css('width', window.innerWidth/2);
     $('#gameOverScreen').css('margin-top', window.innerHeight/4);
     $('#gameOverScreen').css('margin-left', window.innerWidth/4);
     $('#gameOverScreen').css('opacity', '0').fadeTo(500, 0.8)
 
     //restart page
-    $('a').click(function(){
+    $('#playAgainButton').click(function(){
        //sätter url till playagain
         if(checkRefresh() != 'playagain'){
             location.href = location.href+'?playagain'; 
@@ -147,6 +147,30 @@ function formatTime(time) {
         return $('#timer span').html();
 
     return (min > 0 ? pad(min, 2) : "0") + "'" + pad(sec, 2) + "''" + hundredths;
+
+}
+
+function viewHighscores(){
+
+    $(function () 
+      {
+        $.ajax({                                      
+          url: 'php/highscores.php',           //the script to call to get data          
+          data: "bajs",                        //you can insert url argumnets here to pass to api.php
+                                           //for example "id=5&parent=6"
+          dataType: 'json',                //data format      
+          success: function(data)          //on recieve of reply
+          {
+            var id = data[0];              //get id
+            var vname = data[1];           //get name
+
+            //updaterar html sidan
+            $('.someInfo').html("<p><b>id: </b>"+id+"<b> name: </b>"+vname + '</p>'); //Set output element html
+
+          } 
+        });
+      }); 
+   
 
 }
 

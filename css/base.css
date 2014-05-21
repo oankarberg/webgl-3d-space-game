@@ -23,7 +23,7 @@ div#gameOverScreen{
 
 
 a{cursor:pointer;}
-a:hover { color: red; }
+a:hover { color: white; }
 a:active { color: #c0c0c0;}
 
 
@@ -109,7 +109,7 @@ div.ui-progressbar {
 
 
 /*BUTTONS */
-#playbutton {
+.playbutton {
 	-moz-box-shadow:inset 0px 1px 0px 0px #fce2c1;
 	-webkit-box-shadow:inset 0px 1px 0px 0px #fce2c1;
 	box-shadow:inset 0px 1px 0px 0px #fce2c1;
