@@ -1,4 +1,5 @@
-
+//debug mode
+	var gamePaused = false;
 /**START WEBGL **/
 $(window).load(function() {
 
@@ -7,16 +8,22 @@ $(window).load(function() {
 
 	// standard global variables
 	var floor, floorList, collideableMeshList, 
-		pos1, pos2, cube2, loader, engine, 
+		pos1, pos2, cube2, loader, engine, bulletEngine,
 		container, scene, camera, renderer, 
 		group, ship, cube, sphere, dt, lookatpoint,
 		gravity; //controls;
 	var keyboard = new THREEx.KeyboardState();
+	var keyboard_2 = new KeyboardState();
 	var clock = new THREE.Clock();
 
 	// custom global variables
 	var jumpClock;
 	var jumpTime = 0.0;
+
+	
+
+
+	var bulletShot = false;
 
 	var maxRotX, maxTransX; //skeppets maximala rotation resp. förflyttning
 	var jumpAmp; //hur högt skeppet kan hoppa (jumpAmplitude)
@@ -36,10 +43,22 @@ $(window).load(function() {
 	var cubeX = 200,
 		cubeY = 80,
 		cubeZ = 180;
+
+	var startingSpeed =  -1500;
+	var levelSpeed = 1;
+
+	
+
 	
 	var coins = []; //array med coins
 	var checkIfCollect = []; //satt till false i generateGroundSegment
 	var indexCoins = 0;
+
+	var ammunition = [];
+	var bulletMesh;
+	var bulletX =10,
+		bulletY =10,
+		bulletZ =400;
 
 	var shipDistZ = 0,
 		shipDistStart = 0;
@@ -315,7 +334,7 @@ $(window).load(function() {
 			generateGroundSegment();
 		}
 
-		cube.add(skyBox);
+		//cube.add(skyBox);
 		camera.add(skyBox);
 		camera.add(totalCoinMesh);
 		//scene.add(skyBox);
@@ -350,12 +369,16 @@ $(window).load(function() {
 
 	function animate() 
 	{
-
-	    var requestId = requestAnimationFrame( animate );
+		
+		var requestId = requestAnimationFrame( animate );
+		
+	    
 	    // för att den endast ska åka i sidled 
 	    cube.lookAt(new THREE.Vector3( 0, 0, 1200 ) );
 	    
 	   // stabilizeCube();
+	   
+
 
 		camera.position.x = cube.position.x*0.5;
 	   	camera.position.z = cube.position.z + 1200;
@@ -414,7 +437,7 @@ $(window).load(function() {
 
 	function update()
 	{	
-
+		keyboard_2.update();
 		// för att styra skeppet
 		if(controlsActivated)
 			shipControls();
@@ -425,7 +448,11 @@ $(window).load(function() {
 		dt = clock.getDelta();
 
 		engine.update( dt * 0.8 );	//uppdatera particles
-
+		if(bulletShot == true)
+		{
+			bulletEngine.update( dt * 2);	//uppdatera particles skott
+		}
+			
 		//generera ett vägsegment 
 		shipDistZ = cube.position.z;
 
@@ -542,8 +569,9 @@ $(window).load(function() {
 		var toscreenvec = new THREE.Vector3( 0, 0, 40 );
 		var awayscreenvec = new THREE.Vector3( 0, 0, -30);
 
-		//skeppets fart
-		if ( keyboard.pressed("up") && cube.getLinearVelocity().z > -3000 ) {
+
+		//skeppets fart - Ändring för olika levels man når //gamepaused fungerar inte för man "svävar"  ..tryck "P"
+		if ((cube.getLinearVelocity().z > startingSpeed*levelSpeed)&& (gamePaused != true)) {
 
 			cube.applyCentralImpulse(awayscreenvec);			
 
@@ -554,8 +582,8 @@ $(window).load(function() {
 		else
 			engine.positionStyle = Type.CUBE;
 
-		if ( keyboard.pressed("down") ) 
-			cube.applyCentralImpulse(toscreenvec);
+		//if ( keyboard.pressed("down") ) 
+		//	cube.applyCentralImpulse(toscreenvec);
 
 		//skeppets lutning
 		if ( keyboard.pressed("right") ||  keyboard.pressed("left") ) {
@@ -627,7 +655,7 @@ $(window).load(function() {
 					ship.rotation.x = -PI/16 *Math.sin( 2 * PI *jumpTime);
 			}
 		}
-		else if ( keyboard.pressed("space") ) { //if jump is not in progress and user hits space
+		else if ( keyboard_2.down("space") ) { //if jump is not in progress and user hits space
 			
 			// för att undvika dubbelhopp.. men går att "bunnyjumpa" om man tajmar rätt;)
 			if(Math.abs(cube.position.y) < 180)
@@ -638,9 +666,10 @@ $(window).load(function() {
 				jump(); //starts jump timer
 			}
 		}
-
+		
 		else if(keyboard.pressed("shift") ) {
-
+			
+			
 			// om man inte ska kunna spammdyka och inte dyka i luften..
 			if(Math.abs(cube.position.y) > 80 && Math.abs(cube.position.y) < 180)
 			{
@@ -649,7 +678,11 @@ $(window).load(function() {
 				jump();
 			}
 		}
-		//console.log(cube.position.y);
+		else if(keyboard_2.down("ctrl")) {
+			makeBullet();
+		}
+		
+		
 
 	}
 
@@ -675,6 +708,8 @@ $(window).load(function() {
 		jumpClock.start();
 		jumpTime = jumpClock.getElapsedTime();
 	}
+	
+
 
 	function render() 
 	{
@@ -878,7 +913,46 @@ $(window).load(function() {
 		}
 	}
 	//
+	//skapa ett skott och lägger till partikelsystem
+	function makeBullet(){
+		bulletMaterial = new THREE.MeshLambertMaterial( { color: 0xff0000} );
+																//topradius, bottomradius, height,densitet
+		bulletMesh = new Physijs.SphereMesh(new THREE.SphereGeometry(bulletX,bulletY,2), bulletMaterial, 0.01); 
+		bulletMesh.position.set(cube.position.x,cube.position.y,cube.position.z-(cubeZ+bulletZ)/2); //Z-position så att den inte kolliderar med Kuben.
+		bulletMesh.rotation.x = Math.PI/2;
+		scene.add(bulletMesh);
 
+		
+		//skapa partikelsystem
+		bulletEngine = new ParticleEngine();
+		bulletEngine.setValues( Examples.fireball );
+		bulletEngine.initialize(); 
+		
+	
+		bulletMesh.applyCentralImpulse(new THREE.Vector3(0,0,-500));	
+		bulletMesh.visible = true;
+		bulletShot = true;
+		
+		bulletMesh.add(bulletEngine.particleMesh);
+		
+
+
+	}
+	//restart page på ENTER 
+    /*$(document).keypress(function(e) {
+    if(e.which == 13) {
+    	if(gamePaused != true)
+    	{
+    		gamePaused = true;
+    	}else
+    	{
+    		gamePaused = false;
+    		animate();
+    	}
+        
+    }
+	});
+	*/
 
 });
 
