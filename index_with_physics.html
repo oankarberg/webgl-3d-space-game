@@ -115,6 +115,13 @@
 		<div class = "spaceshipdiv">
 			<div class = "someInfo">
 				<p>Oops you crashed your ship and died! You got <span id = "totalcoins" > </span> coins in <span id = "time"></span> seconds!</p>
+				<div id = "highScoreField">
+					<br/> <p>Enter your name for Highscore</p> 
+					<input style="margin-left:50px; margin-top:10px;" type ="text" id = "playerNameField"/>
+					<span id="feedbackInput"></span>
+					<br/>
+					<a href = "#" onclick = "javascript:sendHighscore();" class="submitbutton" id ="submitScore">Submit</a>
+				</div>
 			</div>
 		</div>
 

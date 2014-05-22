@@ -1,12 +1,7 @@
 <?php
 	
-	$db_host = "localhost";
-	$db_user = "root";
-	$db_pass = "";
-	$db = "highscores";
-
-	$conn = mysql_connect($db_host, $db_user, $dbpass);
-	mysql_select_db($db);
+	require('connect.php');
+	header('content-type: application/json;');
 
 /*
 	mysql_query("INSERT INTO players (pid, name, date, score)
@@ -15,10 +10,18 @@
 
 	$query = "SELECT * FROM players";
 	$result = mysql_query($query);
-	$array = mysql_fetch_row($result);
 
-	echo json_encode($array);
+	$rows = array();
 
+	while($r = mysql_fetch_assoc($result)) {
+	 	 $rows[] = $r;
+	}
+
+	echo json_encode($rows);
+	/*
+	while($row = mysql_fetch_array($result))
+		echo json_encode($row);
+*/
 /*
 	while($players = mysql_fetch_array($result)){
 
@@ -26,6 +29,5 @@
 		echo "<h3>" . $players['name'] . "</h3>";
 
 	}*/
-
 
 ?>

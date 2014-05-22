@@ -50,8 +50,8 @@ function endGame(id, totalCoins){
     $('.someInfo #time').html(time);
     $('.someInfo #totalcoins').html(totalCoins);
 
-    $('#gameOverScreen').css('height', window.innerHeight/2);
-    $('#gameOverScreen').css('width', window.innerWidth/2);
+    $('#gameOverScreen').css('height', 300);
+    $('#gameOverScreen').css('width', 830);
     $('#gameOverScreen').css('margin-top', window.innerHeight/4);
     $('#gameOverScreen').css('margin-left', window.innerWidth/4);
     $('#gameOverScreen').css('opacity', '0').fadeTo(500, 0.8)
@@ -64,8 +64,7 @@ function endGame(id, totalCoins){
             console.log(location.href);
             location.reload();
         }else{
-            location.reload();
-             
+            location.reload(); 
         }
     });
 
@@ -92,8 +91,8 @@ function startGameScreen(){
 
     $('#WebGL-container').css('opacity', '1').fadeTo(2000, 0.8)
 
-    $('#startGameScreen').css('height', window.innerHeight/1.8);
-    $('#startGameScreen').css('width', window.innerWidth/2);
+    $('#startGameScreen').css('height', 380);
+    $('#startGameScreen').css('width', 830);
     $('#startGameScreen').css('margin-top', window.innerHeight/8);
     $('#startGameScreen').css('margin-left', window.innerWidth/4);
     $('#startGameScreen #options').css('width', window.innerWidth/3);
@@ -150,30 +149,42 @@ function formatTime(time) {
 
 }
 
-function viewHighscores(){
+function sendHighscore(){
 
-    $(function () 
-      {
-        $.ajax({                                      
-          url: 'php/highscores.php',           //the script to call to get data          
-          data: "bajs",                        //you can insert url argumnets here to pass to api.php
-                                           //for example "id=5&parent=6"
-          dataType: 'json',                //data format      
-          success: function(data)          //on recieve of reply
-          {
-            var id = data[0];              //get id
-            var vname = data[1];           //get name
+    var name = $('#playerNameField').val();
 
-            //updaterar html sidan
-            $('.someInfo').html("<p><b>id: </b>"+id+"<b> name: </b>"+vname + '</p>'); //Set output element html
+    if($.trim(name) != ''){
 
-          } 
+        $.post('php/send_highscore.php', {name: name, score : 1000}, function(data){
+        
+            $('#feedbackInput').html(data);
+
         });
-      }); 
-   
+    }
+
+    else
+        $('#feedbackInput').html("You have to enter a name");
 
 }
 
+function viewHighscores(){
+
+    $('.someInfo').html("");
+    $('.someInfo').append('<table style = "border-collapse:collapse; margin-top:10px;"><tr><td width ="300"><p style = "color:lightblue;">Player</p></td> <td><p style = "color:lightblue;" > Score</p></td></tr>');
+
+    $.getJSON("php/get_highscores.php",function(result){
+            
+        for(var i = 0; i < result.length; i++){
+
+            $('.someInfo').append("<tr ><td style = 'padding-top:5px;' width = '300'><p>" + (i + 1)  + '. ' + result[i].name + 
+                                  '</td><td><p>' + result[i].score + '</p></td></tr>');
+        }
+
+        $('.someInfo').append('</table>');
+
+    });
+
+}
 
 function startTimer() {
 
