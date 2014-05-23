@@ -717,7 +717,7 @@ $(window).load(function() {
 				jump();
 			}
 		}
-		else if(keyboard_2.down("ctrl")) {
+		else if(keyboard_2.down("Z")) {
 			makeBullet();
 		}
 		
