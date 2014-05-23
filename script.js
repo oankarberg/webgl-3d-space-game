@@ -96,11 +96,11 @@ $(window).load(function() {
 	var groundTexture = new THREE.ImageUtils.loadTexture( 'texture/gradient9.png' );
 		groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping; 
 		//groundTexture.repeat.set( 0.5, 2.0 );
-	var groundMaterial = new THREE.MeshLambertMaterial( { color: 0xFFFFFF, map: groundTexture, side: THREE.DoubleSide, transparent: true, opacity:0.5 } );
+	var groundMaterial = new THREE.MeshLambertMaterial( { color: 0xFFFFFF, map: groundTexture, transparent: true, opacity:0.5 } );
 	var groundGeometry;
 
 	var obstacleTexture = new THREE.ImageUtils.loadTexture( 'texture/WarningSign2.jpg' );
-	var obstacleMaterial = new THREE.MeshLambertMaterial( { color: 0xffffff, map: obstacleTexture, side: THREE.DoubleSide } );
+	var obstacleMaterial = new THREE.MeshLambertMaterial( { color: 0xffffff, map: obstacleTexture } );
 	var obstacleGeometry,
 		obstacleHeight = 250;
 
@@ -166,11 +166,11 @@ $(window).load(function() {
 		floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
 		floorTexture.repeat.set( 1, 1 );
 		var floorMaterial = new THREE.MeshLambertMaterial( { color: 0x444444, map: floorTexture, side: THREE.DoubleSide } );
-		var floorGeometry = new THREE.PlaneGeometry(300, 2000, 10, 10);
-		 floor = new Physijs.BoxMesh(floorGeometry, groundMaterial);
+		var floorGeometry = new THREE.CubeGeometry(300, 2,2000);
+		 floor = new Physijs.BoxMesh(floorGeometry, groundMaterial,0);
 		floor.position.y = -10.5;
 		floor.position.z = -950;
-		floor.rotation.x = PI / 2;
+		//floor.rotation.x = PI / 2;
 		floor.id = "startGround";
 
 		floorList = [floor];
@@ -319,7 +319,7 @@ $(window).load(function() {
 		loader.load('js/shipBody.js', function (geometry) {
 		  // create a new material
 		  var material = new THREE.MeshPhongMaterial({
-		    map: THREE.ImageUtils.loadTexture('texture/ship_texture.png')  // specify and load the texture
+		    map: THREE.ImageUtils.loadTexture('./texture/ship_texture.png')  // specify and load the texture
 		  });
 		  
 		  // create a mesh with models geometry and material
@@ -800,7 +800,7 @@ $(window).load(function() {
 	{
 		generateGap();
 		var segLength = Math.floor((Math.random()*1000)+minSegmentLength);			//den faktiska längden på det segment som genereras
-		groundGeometry = new THREE.PlaneGeometry(laneWidth, segLength,2,6); 	//antalet segment är 1 default, tog bort 2 sista parametrarna..Lagg?
+		groundGeometry = new THREE.CubeGeometry(laneWidth, 2,segLength); 	//antalet segment är 1 default, tog bort 2 sista parametrarna..Lagg?
 
 
 		coinGeometry = new THREE.CylinderGeometry( coinRadiusTop, coinRadiusTop, 10, 32 );
@@ -809,9 +809,9 @@ $(window).load(function() {
 		coin.name='coin';
 
 
-		obstacleGeometry = new THREE.PlaneGeometry(laneWidth, obstacleHeight,20);
-		var ground = new Physijs.BoxMesh(groundGeometry, groundMaterial);	
-		var obstacle = new Physijs.BoxMesh(obstacleGeometry, obstacleMaterial); //hinder i banan, genereras på planet	
+		obstacleGeometry = new THREE.CubeGeometry(laneWidth, obstacleHeight,100);
+		var ground = new Physijs.BoxMesh(groundGeometry, groundMaterial,0);	
+		var obstacle = new Physijs.BoxMesh(obstacleGeometry, obstacleMaterial,0); //hinder i banan, genereras på planet	
 
 
 		/*RENSA ARRAY PÅ ONÖDIG DATA?? **/
@@ -826,7 +826,7 @@ $(window).load(function() {
 			newGroundLane = 0;
 		}
 
-		ground.rotation.x = PI / 2;
+		//ground.rotation.x = PI / 2;
 		coin.rotation.x = PI / 2;
 
 		if( newGroundLane == prevGroundLane ||  prevGroundLane == 3) {
@@ -881,7 +881,7 @@ $(window).load(function() {
 		//För att ibland kunna välja väg, höger eller vänster
 		//Lite fel nu.. blir överlappning ibland.. orkar inte fixa atm
 		if(Math.abs(newGroundLane)==1 && Math.floor(Math.random()*5) == 1) {
-			var ground2 = new Physijs.BoxMesh(groundGeometry, groundMaterial);
+			var ground2 = new Physijs.BoxMesh(groundGeometry, groundMaterial,0);
 			ground2.rotation.x = ground.rotation.x;
 			ground2.position.x = -1*ground.position.x;
 			ground2.position.y = groundPosY;
