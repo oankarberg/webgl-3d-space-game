@@ -93,7 +93,7 @@ $(window).load(function() {
 		coinRadiusBottom = 50; 
 	var coinTexture = new THREE.ImageUtils.loadTexture( 'texture/coinTexture.png' );
 
-	var groundTexture = new THREE.ImageUtils.loadTexture( 'texture/gradient6.png' );
+	var groundTexture = new THREE.ImageUtils.loadTexture( 'texture/gradient9.png' );
 		groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping; 
 		//groundTexture.repeat.set( 0.5, 2.0 );
 	var groundMaterial = new THREE.MeshLambertMaterial( { color: 0xFFFFFF, map: groundTexture, side: THREE.DoubleSide, transparent: true, opacity:0.5 } );
@@ -276,6 +276,7 @@ $(window).load(function() {
 		lightMain.position.set( 0, 2500, 0);
 		lightMain.target = group;
 		lightMain.castShadow = true;
+		lightMain.intensity = 0.1;
 		//lightMain.shadowDarkness = 0.5;
 		//inte riktigt säker på vad följande gör men men
 		lightMain.shadowMapWidth = 512; //hur många pixlar som skuggan ska bestå av?
@@ -313,18 +314,52 @@ $(window).load(function() {
 		engine.positionBase.z = (shipLength+30)/2;
 
 		//laddar in modell
-		loader = new THREE.OBJMTLLoader();
+		var loader = new THREE.JSONLoader(); // init the loader util
+		// init loading
+		loader.load('js/shipBody.js', function (geometry) {
+		  // create a new material
+		  var material = new THREE.MeshPhongMaterial({
+		    map: THREE.ImageUtils.loadTexture('texture/ship_texture.png')  // specify and load the texture
+		  });
+		  
+		  // create a mesh with models geometry and material
+		  var mesh = new THREE.Mesh(
+		    geometry,
+		    material
+		  );
+		  mesh.position.y = -cubeY;
+			mesh.castShadow = true;	
+			mesh.receiveShadow = true;
+		  ship.add(mesh);
+		});
+		loader.load('js/shipVisir.js', function (geometry) {
+		  // create a new material
+		  var material = new THREE.MeshPhongMaterial({transparent: true,opacity:0.5,color: 0xaaddff
+		     });
+		  
+		  // create a mesh with models geometry and material
+		  var mesh = new THREE.Mesh(
+		    geometry,
+		    material
+		  );
+		  mesh.position.y = -cubeY;
+			mesh.castShadow = true;	
+			mesh.receiveShadow = true;
+		  ship.add(mesh);
+		});
+
+		/*loader = new THREE.OBJMTLLoader();
 		loader.load( 'objects/ship6.obj', 'objects/ship6.mtl', function ( object ) {
 			//Object is the car, adding car to the cube for physics
-			/*object.scale.set(0.6,0.6,0.6);
-			object.rotation.y = Math.PI;*/
+			//object.scale.set(0.6,0.6,0.6);
+			//object.rotation.y = Math.PI;
 			object.position.y = -cubeY;
 			object.castShadow = true;	
 			object.receiveShadow = true;
 
 			ship.add(object);
 
-		} );
+		} );*/
 
 		//för modell
 
@@ -852,11 +887,13 @@ $(window).load(function() {
 			ground2.position.y = groundPosY;
 			ground2.position.z = ground.position.z;
 			ground2.name = 'ground';
+			ground2.receiveShadow = true;
 			floorList.push(ground2);
 			scene.add(ground2);
 			prevGroundLane = 3;
 		}
 		ground.name = 'ground';
+		ground.receiveShadow = true;
 		scene.add(ground);
 
 	}	
