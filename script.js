@@ -48,7 +48,7 @@ $(window).load(function() {
 
 	var startingSpeed =  -1500;
 	var levelSpeed = 0;
-	var distanceNewLevel = -10000;
+	var distanceNewLevel = -30000;
 
 	//Skybox geometri
 	var skyBoxX =20000,
@@ -514,20 +514,24 @@ $(window).load(function() {
 		if( shipDistZ-shipDistStartForLevel <= distanceNewLevel)
 		{
 			levelSpeed++;
+			if(levelSpeed > 1){
+				disttanceNewLevel *= (levelSpeed/2)
+			}
 			shipDistStartForLevel = cube.position.z;
 
 			//lägga in en splash "next level"
 			$('#level').css('height', window.innerHeight/1.8);
-		    $('#level').css('width', window.innerWidth/2);
+		  
 		    $('#level').css('margin-top', window.innerHeight/8);
 		    $('#level').css('margin-left', window.innerWidth/4);
-		    $('#level').css('opacity', '0').fadeTo(2000, 0.8)
+		    $('#level').css('opacity', '0').fadeTo(2000, 0.3)
 		  
-		    $('#level #hlvl').animate({fontSize:'50em', width:'5000px'},3000,
+		    $('#level #hlvl').animate({fontSize:'50em', width:'5000px', textAlign:'center'},3000,
 		    function(){	// callback, detta utförs när animationen är klar
 
 					$('#level #hlvl').css('font-size', '4em');
 					$('#level #hlvl').css('width', '30px');
+					$('#level').css('display', 'none');
 
 			});	
 		
@@ -1043,9 +1047,8 @@ $(window).load(function() {
 		  var pX = Math.random() * skyBoxX - skyBoxX/2,
 		      pY = Math.random() * skyBoxY - skyBoxY/2,
 		      pZ = Math.random() * skyBoxZ - skyBoxZ/2,
-		      particle = new THREE.Vertex(
-		        new THREE.Vector3(pX, pY, pZ)
-		      );
+		      particle = new THREE.Vector3(pX, pY, pZ);
+		  
 
 		  // Lägg till i vektorgeometrin
 		  particles.vertices.push(particle);
