@@ -1,11 +1,11 @@
 <?php
 
-	// ska fungera och vara uppe.. kör annars via localhost
+	//för localhost.. 
 
-	$db_host = "mysql10.000webhost.com";
-	$db_user = "a7287502_space";
-	$db_pass = "hejlol123";
-	$db = "a7287502_space";
+	$db_host = "localhost";
+	$db_user = "root";
+	$db_pass = "";
+	$db = "highscores";
 
 	$conn = mysql_connect($db_host, $db_user, $db_pass);
 	mysql_select_db($db);

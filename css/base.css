@@ -27,7 +27,7 @@ a{cursor:pointer;}
 a:hover { color: white; }
 a:active { color: #c0c0c0;}
 
-div#highScoreField{float:left; margin-left: 200px;}
+div#highScoreField{float:left; margin-left: 200px; display:none;}
 
 div#loading{width:100%; height:100%; margin-top:0px ; background-color:black;}
 div#loading h1{color:white;}

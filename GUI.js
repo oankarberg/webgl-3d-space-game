@@ -1,6 +1,7 @@
 
 var gameOver = false;
 var controlsActivated = false;
+var score;
 
 //Kolla om startskärmen ska upp. jämför url, inte den bästa lösningen..
 function checkRefresh()
@@ -39,6 +40,13 @@ var activateControls = function(){
 }
 
 function endGame(id, totalCoins){
+
+    // för att nå variabeln globalt i filen
+    score = totalCoins;
+
+    //kan bara submitta om man fått mer än en coin... f
+    if(score >= 1)
+        $('#highScoreField').show();
 
     // stop loop
     window.cancelAnimationFrame(id);
@@ -155,7 +163,7 @@ function sendHighscore(){
 
     if($.trim(name) != ''){
 
-        $.post('php/send_highscore.php', {name: name, score : 1000}, function(data){
+        $.post('php/send_highscore.php', {name: name, score : score}, function(data){
         
             $('#feedbackInput').html(data);
 
@@ -173,7 +181,15 @@ function viewHighscores(){
     $('.someInfo').append('<table style = "border-collapse:collapse; margin-top:10px;"><tr><td width ="300"><p style = "color:lightblue;">Player</p></td> <td><p style = "color:lightblue;" > Score</p></td></tr>');
 
     $.getJSON("php/get_highscores.php",function(result){
-            
+        
+        if(result.length === 0){
+
+            $('.someInfo').append('<p>No highscores to show</p>');
+            return;
+
+        }
+
+
         for(var i = 0; i < result.length; i++){
 
             $('.someInfo').append("<tr ><td style = 'padding-top:5px;' width = '300'><p>" + (i + 1)  + '. ' + result[i].name + 
