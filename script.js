@@ -15,6 +15,8 @@ $(window).load(function() {
 	var keyboard = new THREEx.KeyboardState();
 	var keyboard_2 = new KeyboardState();
 	var clock = new THREE.Clock();
+	var colorArr = [0xffff00,0xff0000,0xff00ff,0xffff,0xffffff,0xf24a33,0x487a33,0xfbba33,0xfbd753];
+
 
 	// custom global variables
 	var jumpClock;
@@ -46,9 +48,9 @@ $(window).load(function() {
 		cubeY = 80,
 		cubeZ = 180;
 
-	var startingSpeed =  -1500;
+	var startingSpeed =  -2500;
 	var levelSpeed = 0;
-	var distanceNewLevel = -10000;
+	var distanceNewLevel = -30000;
 
 	//Skybox geometri
 	var skyBoxX =20000,
@@ -81,7 +83,7 @@ $(window).load(function() {
 	//global ground and obstacle variables
 	var laneWidth = 300,		//bredd på varje vägfil
 		minSegmentLength = 2000, //minsta längden på ett vägsegment
-		laneOverlap = 1000;
+		laneOverlap = 500;
 
 	var	groundPosY = -10.5,
 		groundPosZ = 1950,		//uppdateras efter varje nytt segment, defaultvärdet ska vara lika med startplanets sista z-koordinat
@@ -96,7 +98,7 @@ $(window).load(function() {
 	var groundTexture = new THREE.ImageUtils.loadTexture( 'texture/gradient9.png' );
 		groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping; 
 		//groundTexture.repeat.set( 0.5, 2.0 );
-	var groundMaterial = new THREE.MeshLambertMaterial( { color: 0xFFFFFF, map: groundTexture, transparent: true, opacity:0.5 } );
+	var groundMaterial = new THREE.MeshLambertMaterial( { color: 0xffffff, map: groundTexture, transparent: true, opacity:0.5 } );
 	var groundGeometry;
 
 	var obstacleTexture = new THREE.ImageUtils.loadTexture( 'texture/WarningSign2.jpg' );
@@ -175,8 +177,6 @@ $(window).load(function() {
 
 		floorList = [floor];
 
-		
-
 		// SKYBOX/FOG
 		var skyBoxGeometry  = new THREE.CubeGeometry( 20000, 8000, 30000 );
 		var skyBoxMaterial  = new THREE.MeshLambertMaterial( {map:THREE.ImageUtils.loadTexture('texture/space.jpg'), side: THREE.BackSide } );
@@ -207,14 +207,10 @@ $(window).load(function() {
 
 		totalCoinMesh.rotation.x =  Math.PI / 2;
 		totalCoinMesh.position.set(totalCoinPosX, totalCoinPosY, totalCoinPosZ);
-		
 
 			////////////
 			// CUSTOM //
 			////////////
-		//////////////////////
-		/// Carlbaum edits ///
-		//////////////////////
 
 		//kuben som styr fysiken
 		cube = new Physijs.BoxMesh(new THREE.CubeGeometry(cubeX,cubeY,cubeZ), floorMaterial, cubeMass);
@@ -222,8 +218,6 @@ $(window).load(function() {
 		cube.position.z = shipStartPosition;
 
 		scene.setGravity(new THREE.Vector3( 0, gravity, 0 ));
-
-
 
 		var shipGeom = new THREE.CubeGeometry(	shipWidth,
 												shipHeight,
@@ -425,9 +419,9 @@ $(window).load(function() {
 	   
 
 		camera.position.x = cube.position.x*0.5;
-	   	camera.position.z = cube.position.z + 1200;
+	   	camera.position.z = cube.position.z + 800;
 	    lookatpoint.position.x = cube.position.x*0.5;
-		lookatpoint.position.z = cube.position.z-1500;
+		lookatpoint.position.z = cube.position.z-1000;
 		camera.lookAt(lookatpoint.position);
 
 		render();		
@@ -514,6 +508,8 @@ $(window).load(function() {
 		if( shipDistZ-shipDistStartForLevel <= distanceNewLevel)
 		{
 			levelSpeed++;
+			groundMaterial.color.setHex( colorArr[levelSpeed-1] );
+			distanceNewLevel*=levelSpeed;
 			shipDistStartForLevel = cube.position.z;
 
 			//lägga in en splash "next level"
@@ -645,7 +641,7 @@ $(window).load(function() {
 
 
 		//skeppets fart - Ändring för olika levels man når //gamepaused fungerar inte för man "svävar"  ..tryck "P"
-		if ((cube.getLinearVelocity().z > startingSpeed-(levelSpeed*1000))&& (gamePaused != true)) {
+		if ((cube.getLinearVelocity().z > startingSpeed-(levelSpeed*300))&& (gamePaused != true)) {
 
 			cube.applyCentralImpulse(awayscreenvec);			
 
@@ -822,7 +818,7 @@ $(window).load(function() {
 		floorList.push(ground);
 
 		var newGroundLane = Math.floor((Math.random()*5)-1); //randomgrejen genererar -1, 0 eller 1 ( alltså vilken lane som ground ska hamna i)
-		if(newGroundLane == 3 || newGroundLane == 2) {
+		if(newGroundLane == 3 || newGroundLane == 2) { //för att få fler i mitten än på kanterna
 			newGroundLane = 0;
 		}
 
@@ -882,11 +878,16 @@ $(window).load(function() {
 		//Lite fel nu.. blir överlappning ibland.. orkar inte fixa atm
 		if(Math.abs(newGroundLane)==1 && Math.floor(Math.random()*5) == 1) {
 			var ground2 = new Physijs.BoxMesh(groundGeometry, groundMaterial,0);
+			if(Math.abs(prevGroundLane) == 1) {
+				groundPosZ += laneOverlap;
+				ground.position.z = ground.position.z-laneOverlap;
+			}
 			ground2.rotation.x = ground.rotation.x;
 			ground2.position.x = -1*ground.position.x;
 			ground2.position.y = groundPosY;
 			ground2.position.z = ground.position.z;
 			ground2.name = 'ground';
+			
 			ground2.receiveShadow = true;
 			floorList.push(ground2);
 			scene.add(ground2);
@@ -1030,8 +1031,9 @@ $(window).load(function() {
 		      color: 0xFFFF66,
 		      size: 100,
 		      map:THREE.ImageUtils.loadTexture( 'images/spikey.png' ),
-		      blending: THREE.AdditiveBlending,
-	  		  transparent: true
+		      blending: THREE.subtractiveBlending,
+	  		  transparent: true,
+			  opacity: 0.4
 		    });
 
 
