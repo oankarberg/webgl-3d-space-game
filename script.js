@@ -1,7 +1,13 @@
 //debug mode
 	var gamePaused = false;
+	var muted = false;
+
 /**START WEBGL **/
 $(window).load(function() {
+
+	$('#mute').click(function(){
+		muteMusic();
+	});
 
 	// laddar in guit
 	initialize_GUI();

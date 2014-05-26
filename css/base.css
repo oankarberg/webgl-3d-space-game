@@ -84,6 +84,17 @@ div#coins{
 	top:10px;
 
 }
+/*första parametern gör den vit*/
+#volume{-webkit-filter: invert(100%); width:10%; cursor:pointer;}
+
+div#mute{
+
+	margin-left:50px; 
+	margin-top:20px;
+	position:absolute; 
+
+}
+
 div#coins #totalcoins
 {
 	color:white;

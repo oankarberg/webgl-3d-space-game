@@ -1,7 +1,9 @@
 
 var gameOver = false;
 var controlsActivated = false;
+var gameRunning = false;
 var score;
+
 
 //Kolla om startskärmen ska upp. jämför url, inte den bästa lösningen..
 function checkRefresh()
@@ -40,13 +42,15 @@ function initialize_GUI(){
         setTimeout(function(){
             activateControls();
             startTimer();
-            toggleInGameMusic();
+
+            if(!muted)
+                toggleInGameMusic();
         }, 2800);
 
     }
 }
 var activateControls = function(){
-
+    gameRunning = true;
     controlsActivated = true;
 }
 
@@ -72,17 +76,24 @@ var displayNextLevel = function(levelSpeed){
 
 }
 
+
+
 function endGame(id, totalCoins){
 
+    gameRunning = false;
+
     playSound('fail');
-    toggleInGameMusic();
+
+    if(!muted)
+        toggleInGameMusic();
 
     setTimeout(function(){
         playSound('gameOver');
     }, 300);
 
     setTimeout(function(){
-        toggleStartMusic();
+        if(!muted)
+            toggleStartMusic();
     }, 1000);
 
     // för att nå variabeln globalt i filen
@@ -141,7 +152,8 @@ function endGame(id, totalCoins){
 
 function startGameScreen(){
 
-    toggleStartMusic();
+    if(!muted)
+        toggleStartMusic();
 
     $('#WebGL-container').css('opacity', '1').fadeTo(2000, 0.8)
 
@@ -158,6 +170,26 @@ function startGameScreen(){
 
 }
 
+var muteMusic = function(){
+
+    if(gameRunning)
+        toggleInGameMusic();
+
+    else
+        toggleStartMusic();
+
+    if(!muted){
+        $('#mute').html('<img id = "volume" src = "images/volume-mute.png">');
+        muted = true;
+    }
+    else{
+        $('#mute').html('<img id = "volume" src = "images/volume-max.png">');
+        muted = false;
+    }
+
+
+}
+
 //about
 var about = function(){
 
@@ -170,7 +202,9 @@ function playGame()
     
     //0.5sek delay innan countdown
     setTimeout(function(){
-        toggleStartMusic();
+
+        if(!muted)
+            toggleStartMusic();
         //3, 2, 1
         showCountDown();
 
@@ -179,7 +213,8 @@ function playGame()
     //aktiverar kontroller på 2.3 sek delay
     setTimeout(function(){
 
-        toggleInGameMusic();
+        if(!muted)
+            toggleInGameMusic();
         activateControls();
         startTimer();
     }, 2300);

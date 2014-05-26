@@ -1,6 +1,7 @@
 
 var startMusicOn = false;
 var inGameMusicOn = false;
+var muted = false;
 
 //loopar
 function toggleStartMusic(){
@@ -55,6 +56,9 @@ function toggleInGameMusic(){
 
 function playCountDownSound(){
 
+	if(muted)
+		return;
+
 	var sound = document.getElementById('start');
 	sound.volume = 0.6;
 	sound.play();
@@ -63,6 +67,9 @@ function playCountDownSound(){
 
 function playSound(sound){
 
+	if(muted)
+		return;
+	
 	document.getElementById(sound).play();
 }
 
