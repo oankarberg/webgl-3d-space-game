@@ -50,7 +50,7 @@ var activateControls = function(){
     controlsActivated = true;
 }
 
-var displayNextLevel = function(){
+var displayNextLevel = function(levelSpeed){
 
     $('#level').css('height', window.innerHeight/1.8);
   

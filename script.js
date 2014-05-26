@@ -523,7 +523,7 @@ $(window).load(function() {
 			shipDistStartForLevel = cube.position.z;
 
 			//lägga in en splash "next level"
-			displayNextLevel();
+			displayNextLevel(levelSpeed);
 			
 
 		}
@@ -967,11 +967,9 @@ $(window).load(function() {
 						checkIfCollect[indexCoins] = true;
 						TOTALCOINS++;
 						indexCoins++;
-						playSound('coin'); 		//hittas i sound.js
+						playSound('ping'); 		//hittas i sound.js
 						$('#coins #totalcoins').html(TOTALCOINS);
 						scene.remove(coins[indexCoins-1]);
-
-
 					}
 
 					//Byt till nästa coin att jämföra en collision med	
