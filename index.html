@@ -25,10 +25,11 @@
 <script type="text/javascript" src="js/OBJMTLLoader.js"></script>
 <script type="text/javascript" src="js/stats.js"></script>
 
+<script type="text/javascript" src="sound.js"></script>
 <script type="text/javascript" src="GUI.js"></script>
 <script type="text/javascript" src="script.js"></script>
 <script type="text/javascript" src="keyboardstate.js"></script>
-<script type="text/javascript" src="sound.js"></script>
+
 <!-- GUI for experimenting with values -->		
 <!--script type="text/javascript" src="js/DAT.GUI.min.js"></script-->
 
@@ -44,6 +45,12 @@
 	
 	<!--Coin sound, spelas vid collision -->
 	<audio id="ping" src="sound/ping.mp3" preload="auto"></audio>
+	<audio id="start" src="sound/start.wav" preload="auto"></audio>
+	<audio id="crash" src="sound/metal_impact.wav" preload="auto"></audio>
+	<audio id="jump" src="sound/jump.wav" preload="auto"></audio>
+	<audio id="fail" src="sound/fail.wav" preload="auto"></audio>
+	<audio id="gameOver" src="sound/game_over.wav" preload="auto"></audio>
+
 
 	<!--visar spelet-->
 	<div id="WebGL-container">
@@ -51,6 +58,7 @@
 		<div id ="redSplash">
 		</div>
 
+		<div id ="countDown"><h1><span id = "count">3</span></h1></div>
 
 		<div id="healthBar">
 			<div id="health">

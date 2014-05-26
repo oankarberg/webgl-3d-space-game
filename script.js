@@ -518,22 +518,8 @@ $(window).load(function() {
 			shipDistStartForLevel = cube.position.z;
 
 			//lägga in en splash "next level"
-			$('#level').css('height', window.innerHeight/1.8);
-		  
-		    $('#level').css('margin-top', window.innerHeight/8);
-		    $('#level').css('margin-left', window.innerWidth/4);
-		    $('#level').css('opacity', '0').fadeTo(2000, 0.3)
-		  
-		    $('#level #hlvl').animate({fontSize:'50em', width:'5000px', textAlign:'center'},3000,
-		    function(){	// callback, detta utförs när animationen är klar
-
-					$('#level #hlvl').css('font-size', '4em');
-					$('#level #hlvl').css('width', '30px');
-					$('#level').css('display', 'none');
-
-			});	
-		
-			$('#level #lvl').html(levelSpeed);
+			displayNextLevel();
+			
 
 		}
 
@@ -601,6 +587,8 @@ $(window).load(function() {
 	}
 
 	var shipTakesHit = function(shipSpeed){
+
+		playSound('crash');
 
 		//tappar liv beroende på hur fort man åker
     	shipSpeed/=400; // skalar ner
@@ -736,6 +724,7 @@ $(window).load(function() {
 			// för att undvika dubbelhopp.. men går att "bunnyjumpa" om man tajmar rätt;)
 			if(Math.abs(cube.position.y) < 180)
 			{
+				playSound('jump');
 				cube.applyCentralImpulse(jumpvec);
 				// 0 för den ska endast hänga efter kuben
 				jumpOrdive = 0;
@@ -984,7 +973,7 @@ $(window).load(function() {
 						checkIfCollect[indexCoins] = true;
 						TOTALCOINS++;
 						indexCoins++;
-						playCoinSound(); 		//hittas i sound.js
+						playSound('coin'); 		//hittas i sound.js
 						$('#coins #totalcoins').html(TOTALCOINS);
 						scene.remove(coins[indexCoins-1]);
 

@@ -30,8 +30,19 @@ function initialize_GUI(){
          startGameScreen();  
     }else
     {
-        activateControls();
-        startTimer();
+        //0.5sek delay innan countdown
+        setTimeout(function(){
+            //3, 2, 1
+            showCountDown();
+        }, 1000);
+
+        //aktiverar kontroller på 2.3 sek delay
+        setTimeout(function(){
+            activateControls();
+            startTimer();
+            toggleInGameMusic();
+        }, 2800);
+
     }
 }
 var activateControls = function(){
@@ -39,7 +50,40 @@ var activateControls = function(){
     controlsActivated = true;
 }
 
+var displayNextLevel = function(){
+
+    $('#level').css('height', window.innerHeight/1.8);
+  
+    $('#level').css('margin-top', window.innerHeight/8);
+    $('#level').css('margin-left', window.innerWidth/4);
+    $('#level').css('opacity', '0').fadeTo(2000, 0.3)
+  
+    $('#level #hlvl').animate({fontSize:'50em', width:'5000px', textAlign:'center'},3000,
+
+        function(){ // callback, detta utförs när animationen är klar
+
+            $('#level #hlvl').css('font-size', '4em');
+            $('#level #hlvl').css('width', '30px');
+            $('#level').css('display', 'none');
+
+    }); 
+
+    $('#level #lvl').html(levelSpeed);
+
+}
+
 function endGame(id, totalCoins){
+
+    playSound('fail');
+    toggleInGameMusic();
+
+    setTimeout(function(){
+        playSound('gameOver');
+    }, 300);
+
+    setTimeout(function(){
+        toggleStartMusic();
+    }, 1000);
 
     // för att nå variabeln globalt i filen
     score = totalCoins;
@@ -97,6 +141,8 @@ function endGame(id, totalCoins){
 
 function startGameScreen(){
 
+    toggleStartMusic();
+
     $('#WebGL-container').css('opacity', '1').fadeTo(2000, 0.8)
 
     $('#startGameScreen').css('height', 380);
@@ -116,20 +162,85 @@ function startGameScreen(){
 var about = function(){
 
     alert("Made by Nova, Ogge, Kängen, Yosuf och Runkebaum")
-
-
 }
 
 //ta bort startscreen
 function playGame()
 {
-    activateControls();
+    
+    //0.5sek delay innan countdown
+    setTimeout(function(){
+        toggleStartMusic();
+        //3, 2, 1
+        showCountDown();
+
+    }, 500);
+
+    //aktiverar kontroller på 2.3 sek delay
+    setTimeout(function(){
+
+        toggleInGameMusic();
+        activateControls();
+        startTimer();
+    }, 2300);
+
     gameOver = false;
-    startTimer();
-     // stop loop
+
     $('#WebGL-container').css('opacity', '1').fadeTo(500, 1);
     $('#startGameScreen').css('display', 'none');
        
+}
+
+//Hyffsat hårdkodad!
+
+function showCountDown(){
+
+    playCountDownSound();
+
+    $('#countDown').css('margin-top', window.innerHeight/3);
+
+    $('#countDown').animate({ opacity: 0 }, 0);
+    $('#countDown').animate({ opacity: 0.6}, 200);
+    $('#countDown').css('opacity', '0.6').fadeTo(350, 0);
+
+
+    setTimeout(function(){
+
+        $('#countDown').animate({ opacity: 0 }, 0);
+        $('#countDown').animate({ opacity: 0.6}, 200);
+
+        $('#countDown').css('opacity', '0.6').fadeTo(350, 0);
+    }, 100);
+
+    setTimeout(function(){
+
+        $('#countDown').animate({ opacity: 0 }, 0);
+        $('#countDown').animate({ opacity: 0.6 }, 200);
+
+        $('#countDown').css('opacity', '0.6').fadeTo(350, 0);
+    }, 200);
+
+    setTimeout(function(){
+
+        $('#countDown').show();
+        $('#countDown').animate({ opacity: 0 }, 0);
+        $('#countDown').animate({ opacity: 0.6 }, 500);
+
+        $('#countDown').css('opacity', '0.6').fadeTo(350, 0);
+    
+    }, 300);
+
+    setTimeout(function(){$('#countDown').html('<h1 id ="countDownH">2</h1>');}, 600);
+    setTimeout(function(){$('#countDown').html('<h1 id ="countDownH">1</h1>');}, 1200);
+
+
+    setTimeout(function(){
+
+        $('#countDown').css('background-color', 'green');
+        $('#countDown').html('<h1 id ="countDownH">GO!</h1>');
+
+    }, 1800);
+
 }
 
 
@@ -178,7 +289,7 @@ function sendHighscore(){
 function viewHighscores(){
 
     $('.someInfo').html("");
-    $('.someInfo').append('<table style = "border-collapse:collapse; margin-top:10px;"><tr><td width ="300"><p style = "color:lightblue;">Player</p></td> <td><p style = "color:lightblue;" > Score</p></td></tr>');
+    $('.someInfo').append('<table style = "border-collapse:collapse; margin-top:10px;"><tr><td width ="600"><p style = "color:lightblue;">Player</p></td> <td><p style = "color:lightblue;" > Score</p></td></tr>');
 
     $.getJSON("php/get_highscores.php",function(result){
         
@@ -190,9 +301,9 @@ function viewHighscores(){
         }
 
 
-        for(var i = 0; i < result.length; i++){
+        for(var i = 0; i < 5; i++){ // i < result.length för hela
 
-            $('.someInfo').append("<tr ><td style = 'padding-top:5px;' width = '300'><p>" + (i + 1)  + '. ' + result[i].name + 
+            $('.someInfo').append("<tr ><td style = 'padding-top:5px;' width = '600'><p>" + (i + 1)  + '. ' + result[i].name + 
                                   '</td><td><p>' + result[i].score + '</p></td></tr>');
         }
 
