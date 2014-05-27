@@ -3,7 +3,7 @@
 	require('connect.php');
 	header('content-type: application/json;');
 
-	$query = "SELECT * FROM players";
+	$query = "SELECT * FROM players ORDER BY score DESC";
 	$result = mysql_query($query);
 
 	$rows = array();

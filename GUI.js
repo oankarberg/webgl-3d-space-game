@@ -159,8 +159,8 @@ function startGameScreen(){
 
     $('#startGameScreen').css('height', 380);
     $('#startGameScreen').css('width', 830);
-    $('#startGameScreen').css('margin-top', window.innerHeight/8);
-    $('#startGameScreen').css('margin-left', window.innerWidth/4);
+    $('#startGameScreen').css('margin-top', window.innerHeight/70+'%');
+    $('#startGameScreen').css('margin-left', window.innerWidth/70+'%');
     $('#startGameScreen #options').css('width', window.innerWidth/3);
     $('#startGameScreen #spaceshipdiv').css('height', window.innerHeight/2.5);
 
@@ -311,7 +311,10 @@ function sendHighscore(){
 
         $.post('php/send_highscore.php', {name: name, score : score}, function(data){
         
-            $('#feedbackInput').html(data);
+            $('#feedbackInput').css('margin-left', '75px');
+            $('#feedbackInput').html('Submitted!');
+            $('#playerNameField').hide();
+            $('#submitScore').hide();
 
         });
     }
@@ -334,7 +337,6 @@ function viewHighscores(){
             return;
 
         }
-
 
         for(var i = 0; i < 5; i++){ // i < result.length för hela
 
