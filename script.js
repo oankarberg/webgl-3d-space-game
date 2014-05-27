@@ -54,12 +54,12 @@ $(window).load(function() {
 		cubeY = 80,
 		cubeZ = 180;
 
-	var startingSpeed =  -2500;
+	var startingSpeed =  -2000;
 	var levelSpeed = 0;
 	var distanceNewLevel = -30000;
 
 	//Skybox geometri
-	var skyBoxX =20000,
+	var skyBoxX =30000,
 		skyBoxY = 8000,
 		skyBoxZ = 30000;
 	
@@ -188,7 +188,7 @@ $(window).load(function() {
 		floorList = [floor];
 
 		// SKYBOX/FOG
-		var skyBoxGeometry  = new THREE.CubeGeometry( 20000, 8000, 30000 );
+		var skyBoxGeometry  = new THREE.CubeGeometry( skyBoxX, skyBoxY, skyBoxZ );
 		var skyBoxMaterial  = new THREE.MeshLambertMaterial( {map:THREE.ImageUtils.loadTexture('texture/space.jpg'), side: THREE.BackSide } );
 		var skyBox 			= new THREE.Mesh( skyBoxGeometry, skyBoxMaterial );
 		skyBox.position.y = 1500;
@@ -1042,7 +1042,7 @@ $(window).load(function() {
 		  particles.vertices.push(particle);
 		}
 
-		// skapr partikelsystemet
+		// skapar partikelsystemet
 		var particleSystem = new THREE.ParticleSystem(
 		    particles,
 		    pMaterial);
