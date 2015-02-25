@@ -1,4 +1,4 @@
 TNM061-new-3D
 =============
 
-Gjorde en ny eftersom det va så många mappar
+Rymdspel i WebGL skapat i kursen TNM061 vid Linköpings Universitet
